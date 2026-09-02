@@ -29,12 +29,12 @@ main() {
     TEST_ROOT="$(mktemp -d)"
     trap cleanup EXIT
 
-    # Resolve repo to its physical path so string comparisons match the
-    # helper's output (git rev-parse --show-toplevel resolves symlinks; on
-    # macOS mktemp lives under /var -> /private/var).
+    # Resolve repo to its physical POSIX path so string comparisons match the
+    # helper's final `pwd` output. This also resolves macOS /var -> /private/var
+    # and avoids Git for Windows returning C:/... while Git Bash returns /tmp/....
     git init -q -b main "$TEST_ROOT/repo"
     local repo
-    repo="$(cd "$TEST_ROOT/repo" && git rev-parse --show-toplevel)"
+    repo="$(cd "$TEST_ROOT/repo" && pwd -P)"
 
     cat > "$repo/plan-a.md" <<'PLAN'
 # Plan A
@@ -169,7 +169,7 @@ PLAN
     local wt="$TEST_ROOT/wt"
     ( cd "$repo" && git worktree add -q "$wt" -b wt-feature )
     local wt_root wt_dir
-    wt_root="$(cd "$wt" && git rev-parse --show-toplevel)"
+    wt_root="$(cd "$wt" && pwd -P)"
     wt_dir="$(cd "$wt" && "$SDD_SCRIPTS/sdd-workspace" plan-a.md)"
     if [[ "$wt_dir" == "$wt_root/.superpowers/sdd/plan-a" && "$wt_dir" != "$dir_a" ]]; then
         pass "linked worktree resolves its own distinct workspace"

@@ -87,13 +87,31 @@ IF conflicts with your human partner's prior decisions:
 
 ## YAGNI Check for "Professional" Features
 
+A usage check is a targeted compatibility probe, not a license to crawl a
+repository. Before searching, state this contract:
+
+```text
+Target: exact symbol / API / event / config key
+Scope: first-party directories that can answer this review finding
+Exclusions: generated, vendor, build, fixture, or unrelated directories as applicable
+Decision: what a match or no-match changes in this review decision
+Stop: direct producers/consumers or the named risk boundary are enumerated
+```
+
 ```
 IF reviewer suggests "implementing properly":
-  grep codebase for actual usage
+  search only the declared scope for actual usage
 
-  IF unused: "This endpoint isn't called. Remove it (YAGNI)?"
-  IF used: Then implement properly
+  IF no direct usage is established within that scope:
+    "This endpoint has no established caller in the checked path. Remove it (YAGNI),
+     or name the boundary that requires a broader check?"
+  IF direct usage is established:
+    implement only the compatibility behavior that usage requires
 ```
+
+Expand the search only when a current match identifies a new named boundary
+that can change the decision. Do not use broad keyword bundles or search the
+whole codebase merely to feel safe.
 
 **your human partner's rule:** "You and reviewer both report to me. If we don't need this feature, don't add it."
 

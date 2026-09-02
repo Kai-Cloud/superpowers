@@ -29,6 +29,24 @@ digraph when_to_use {
 - Unclear where invalid data originated
 - Need to find which test/code triggers the problem
 
+## Trace Boundary
+
+Before tracing, name the smallest path that can explain the symptom:
+
+```text
+Observed symptom / failing test:
+Immediate failing component:
+Caller/input boundary to trace:
+State, config, or contract risk to test:
+Stop condition:
+```
+
+Trace backward only while the next caller or input can explain the bad value
+and its inspection can change the hypothesis. A long stack trace is not a
+reason to read every caller, sibling subsystem, or related directory. If the
+trace reaches an unavailable boundary, record `Unknown`, the missing evidence,
+and the next cheapest verification.
+
 ## The Tracing Process
 
 ### 1. Observe the Symptom
@@ -50,11 +68,16 @@ WorktreeManager.createSessionWorktree(projectDir, sessionId)
   → called by test at Project.create()
 ```
 
-### 4. Keep Tracing Up
-**What value was passed?**
+### 4. Trace to the First Proven Source Boundary
+**What value was passed, and can this caller explain it?**
 - `projectDir = ''` (empty string!)
 - Empty string as `cwd` resolves to `process.cwd()`
 - That's the source code directory!
+
+Continue one caller at a time only while the next step can distinguish the
+hypothesis. Stop at the first proven source or at a named unknown boundary;
+more callers elsewhere in the repository are not evidence that the trace must
+continue.
 
 ### 5. Find Original Trigger
 **Where did empty string come from?**
@@ -132,22 +155,26 @@ Runs tests one-by-one, stops at first polluter. See script for usage.
 ```dot
 digraph principle {
     "Found immediate cause" [shape=ellipse];
-    "Can trace one level up?" [shape=diamond];
-    "Trace backwards" [shape=box];
-    "Is this the source?" [shape=diamond];
+    "Can the next caller/input change the hypothesis?" [shape=diamond];
+    "Within named trace boundary?" [shape=diamond];
+    "Trace one level backwards" [shape=box];
+    "Is this the first proven source?" [shape=diamond];
+    "Record Unknown + next cheapest verification" [shape=box];
     "Fix at source" [shape=box];
-    "Add validation at each layer" [shape=box];
+    "Add validation at each applicable layer" [shape=box];
     "Bug impossible" [shape=doublecircle];
     "NEVER fix just the symptom" [shape=octagon, style=filled, fillcolor=red, fontcolor=white];
 
-    "Found immediate cause" -> "Can trace one level up?";
-    "Can trace one level up?" -> "Trace backwards" [label="yes"];
-    "Can trace one level up?" -> "NEVER fix just the symptom" [label="no"];
-    "Trace backwards" -> "Is this the source?";
-    "Is this the source?" -> "Trace backwards" [label="no - keeps going"];
-    "Is this the source?" -> "Fix at source" [label="yes"];
-    "Fix at source" -> "Add validation at each layer";
-    "Add validation at each layer" -> "Bug impossible";
+    "Found immediate cause" -> "Can the next caller/input change the hypothesis?";
+    "Can the next caller/input change the hypothesis?" -> "Within named trace boundary?" [label="yes"];
+    "Can the next caller/input change the hypothesis?" -> "Record Unknown + next cheapest verification" [label="no / unavailable"];
+    "Within named trace boundary?" -> "Trace one level backwards" [label="yes"];
+    "Within named trace boundary?" -> "Record Unknown + next cheapest verification" [label="no"];
+    "Trace one level backwards" -> "Is this the first proven source?";
+    "Is this the first proven source?" -> "Can the next caller/input change the hypothesis?" [label="no"];
+    "Is this the first proven source?" -> "Fix at source" [label="yes"];
+    "Fix at source" -> "Add validation at each applicable layer";
+    "Add validation at each applicable layer" -> "Bug impossible";
 }
 ```
 

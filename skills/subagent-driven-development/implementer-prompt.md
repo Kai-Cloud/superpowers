@@ -13,11 +13,26 @@ Subagent (general-purpose):
     ## Task Description
 
     Read your task brief first: [BRIEF_FILE]
-    It contains the full task text from the plan.
+    It contains this task's full text extracted from the plan, not the whole plan.
 
     ## Context
 
     [Scene-setting: where this fits, dependencies, architectural context]
+
+    ## Task Scope and Navigation
+
+    The controller should provide the task's current entry/path, relevant
+    code-note or task-map pointers, direct callers/consumers or named risks,
+    invariants to preserve, and expected proof. Read those before broadening
+    exploration.
+
+    Do not let an implementer rediscover the whole repository to feel safe.
+    Inspect current source, direct callers/consumers, configuration, tests, or
+    traces only when they can answer a named task question. If a material
+    entry, owner, or contract is unknown, state `NEEDS_CONTEXT` with the
+    exact Unknown, missing evidence, and next cheapest verification; invoke
+    `superpowers:codebase-navigation` only if the controller asks you to establish the
+    bounded task map.
 
     ## Before You Begin
 
@@ -41,11 +56,15 @@ Subagent (general-purpose):
 
     Work from: [directory]
 
-    **While you work:** If you encounter something unexpected or unclear, **ask questions**.
-    It's always OK to pause and clarify. Don't guess or make assumptions.
+    **While you work:** If you encounter something unexpected or unclear,
+    state the Unknown, missing evidence, and next cheapest verification. Ask
+    a focused question when a human decision is actually needed. Do not guess,
+    make assumptions, or expand into repository-wide exploration.
 
-    While iterating, run the focused test for what you're changing; run the
-    full suite once before committing, not after every edit.
+    While iterating, run the focused test for what you're changing. Run the
+    full suite once before committing only when the task's named integration
+    boundary, repository rules, or delivery gate requires it—not merely
+    because a full suite exists.
 
     ## You Do Not Dispatch Subagents
 
@@ -79,15 +98,16 @@ Subagent (general-purpose):
 
     **STOP and escalate when:**
     - The task requires architectural decisions with multiple valid approaches
-    - You need to understand code beyond what was provided and can't find clarity
-    - You feel uncertain about whether your approach is correct
+    - A material entry, state owner, or contract remains unknown after the declared path is traced
+    - Current evidence crosses a new boundary that can change the task but no scoped task map exists
     - The task involves restructuring existing code in ways the plan didn't anticipate
-    - You've been reading file after file trying to understand the system without progress
+    - You've been reading file after file without a named question, boundary, or stopping condition
 
-    **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
-    specifically what you're stuck on, what you've tried, and what kind of help you need.
-    The controller can provide more context, re-dispatch with a more capable model,
-    or break the task into smaller pieces.
+    **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. State the
+    exact Unknown, source/test/config evidence already checked, the next cheapest
+    verification, and what decision it would change. The controller can provide a task
+    map, re-dispatch with a more capable model, break the task into smaller pieces, or
+    authorize a bounded `superpowers:codebase-navigation` pass.
 
     ## Before Reporting Back: Self-Review
 

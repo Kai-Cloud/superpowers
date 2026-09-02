@@ -18,9 +18,10 @@ Load plan, review critically, execute all tasks, report when complete.
 ### Step 1: Load and Review Plan
 1. Ensure an isolated workspace: use superpowers:using-git-worktrees to create one or verify the existing one
 2. Read plan file
-3. Review critically - identify any questions or concerns about the plan
-4. If concerns: Raise them with your human partner before starting
-5. If no concerns: Create todos for the plan items and proceed
+3. For each task, identify its entry/path, owner, direct contract/risk boundary, and proof. If a large or unfamiliar existing repository lacks those facts, invoke `superpowers:codebase-navigation` once to create a bounded task map; do not solve missing context by reading the whole repository.
+4. Review critically - identify questions or concerns that can change a task decision
+5. If a material fact remains Unknown: state the missing evidence and next cheapest verification; raise a focused question only when it genuinely blocks the task
+6. If no blocking concern: Create todos for the plan items and proceed
 
 ### Step 2: Execute Tasks
 
@@ -41,11 +42,11 @@ After all tasks complete and verified:
 
 **STOP executing immediately when:**
 - Hit a blocker (missing dependency, test fails, instruction unclear)
-- Plan has critical gaps preventing starting
-- You don't understand an instruction
+- Plan has a critical gap after its named path/boundary was checked
+- A material entry, owner, or contract remains Unknown and the next cheapest verification is unavailable
 - Verification fails repeatedly
 
-**Ask for clarification rather than guessing.**
+**Ask for clarification rather than guessing or broadening into unbounded repository exploration.**
 
 ## When to Revisit Earlier Steps
 

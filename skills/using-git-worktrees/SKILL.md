@@ -101,35 +101,46 @@ cd "$path"
 
 ## Step 2: Project Setup
 
-Auto-detect and run appropriate setup:
+Use the consumer repository's documented setup first. Set up only what the
+current task's named proof requires; do not install/download every detected
+ecosystem merely because its manifest exists. Before a costly install or build,
+state which task path/test needs it and whether an existing workspace already
+has the dependency.
+
+Typical commands, only when relevant to the selected proof:
 
 ```bash
 # Node.js
-if [ -f package.json ]; then npm install; fi
+npm install
 
 # Rust
-if [ -f Cargo.toml ]; then cargo build; fi
+cargo build
 
 # Python
-if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-if [ -f pyproject.toml ]; then poetry install; fi
+pip install -r requirements.txt
+poetry install
 
 # Go
-if [ -f go.mod ]; then go mod download; fi
+go mod download
 ```
 
 ## Step 3: Verify Clean Baseline
 
-Run tests to ensure workspace starts clean:
+Choose the smallest baseline command that establishes a trustworthy starting
+state for the named task. A focused test/typecheck is sufficient for a narrow,
+isolated path; run the full suite when preparing a branch for integration or
+when a named cross-boundary risk requires it.
 
 ```bash
-# Use project-appropriate command
+# Examples; use the command justified by the task
 npm test / cargo test / pytest / go test ./...
 ```
 
-**If tests fail:** Report failures, ask whether to proceed or investigate.
+**If the selected baseline fails:** Report failures, state whether they affect
+the named path, and ask whether to proceed or investigate.
 
-**If tests pass:** Report ready.
+**If it passes:** Report exactly what baseline was checked—not that every
+possible repository test is green.
 
 ### Report
 

@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Test runner for Claude Code skills
-# Tests skills by invoking Claude Code CLI and verifying behavior
+# Test runner for Claude Code skills.
+# Tests skills by invoking Claude Code CLI and verifying behavior.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Exercise this checkout by default, not a separately installed marketplace copy.
+export PLUGIN_DIR="${PLUGIN_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+export CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 cd "$SCRIPT_DIR"
+
+claude_version="$("$CLAUDE_BIN" --version 2>/dev/null || printf 'not found')"
 
 echo "========================================"
 echo " Claude Code Skills Test Suite"
@@ -12,21 +17,21 @@ echo "========================================"
 echo ""
 echo "Repository: $(cd ../.. && pwd)"
 echo "Test time: $(date)"
-echo "Claude version: $(claude --version 2>/dev/null || echo 'not found')"
+echo "Claude version: $claude_version"
 echo ""
 
-# Check if Claude Code is available
-if ! command -v claude &> /dev/null; then
-    echo "ERROR: Claude Code CLI not found"
+# Check if Claude Code is available.
+if ! command -v "$CLAUDE_BIN" >/dev/null 2>&1; then
+    echo "ERROR: Claude Code CLI not found: $CLAUDE_BIN"
     echo "Install Claude Code first: https://code.claude.com"
     exit 1
 fi
 
-# Parse command line arguments
+# Parse command line arguments.
 VERBOSE=false
 SPECIFIC_TEST=""
-TIMEOUT=900  # Per-test-file budget; must exceed the file's worst case
-             # (test-subagent-driven-development.sh: 9 prompts x 90s each)
+TIMEOUT=900  # Per-test-file budget; must exceed the file's worst case.
+             # test-subagent-driven-development.sh has nine prompts.
 RUN_INTEGRATION=false
 
 while [[ $# -gt 0 ]]; do
@@ -57,11 +62,15 @@ while [[ $# -gt 0 ]]; do
             echo "  --integration, -i    Run integration tests (slow, 10-30 min)"
             echo "  --help, -h           Show this help"
             echo ""
-            echo "Tests:"
-            echo "  test-subagent-driven-development.sh  Test skill loading and requirements"
+            echo "Fast tests:"
+            echo "  test-scoped-codebase-navigation.sh  Test bounded navigation rules"
+            echo "  test-worktree-path-policy.sh         Test worktree path policy"
+            echo "  test-sdd-workspace.sh                Test plan-scoped SDD workspace"
+            echo "  test-subagent-driven-development.sh  Test SDD skill loading and requirements"
             echo ""
-            echo "Integration Tests (use --integration):"
-            echo "  test-subagent-driven-development-integration.sh  Full workflow execution"
+            echo "Integration tests (use --integration):"
+            echo "  test-scoped-codebase-navigation-integration.sh  Navigation avoids irrelevant subtree"
+            echo "  test-subagent-driven-development-integration.sh Full workflow execution"
             exit 0
             ;;
         *)
@@ -72,34 +81,32 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# List of skill tests to run (fast unit tests)
+# Fast tests: local static/fixture checks plus SDD description-recall coverage.
 tests=(
+    "test-scoped-codebase-navigation.sh"
     "test-worktree-path-policy.sh"
     "test-sdd-workspace.sh"
     "test-subagent-driven-development.sh"
 )
 
-# Integration tests (slow, full execution)
+# Integration tests: live Claude Code execution.
 integration_tests=(
+    "test-scoped-codebase-navigation-integration.sh"
     "test-subagent-driven-development-integration.sh"
 )
 
-# Add integration tests if requested
 if [ "$RUN_INTEGRATION" = true ]; then
     tests+=("${integration_tests[@]}")
 fi
 
-# Filter to specific test if requested
 if [ -n "$SPECIFIC_TEST" ]; then
     tests=("$SPECIFIC_TEST")
 fi
 
-# Track results
 passed=0
 failed=0
 skipped=0
 
-# Run each test
 for test in "${tests[@]}"; do
     echo "----------------------------------------"
     echo "Running: $test"
@@ -132,7 +139,7 @@ for test in "${tests[@]}"; do
             end_time=$(date +%s)
             duration=$((end_time - start_time))
             echo ""
-            if [ $exit_code -eq 124 ]; then
+            if [ "$exit_code" -eq 124 ]; then
                 echo "  [FAIL] $test (timeout after ${TIMEOUT}s)"
             else
                 echo "  [FAIL] $test (${duration}s)"
@@ -140,7 +147,6 @@ for test in "${tests[@]}"; do
             failed=$((failed + 1))
         fi
     else
-        # Capture output for non-verbose mode
         if output=$(timeout "$TIMEOUT" bash "$test_path" 2>&1); then
             end_time=$(date +%s)
             duration=$((end_time - start_time))
@@ -150,14 +156,14 @@ for test in "${tests[@]}"; do
             exit_code=$?
             end_time=$(date +%s)
             duration=$((end_time - start_time))
-            if [ $exit_code -eq 124 ]; then
+            if [ "$exit_code" -eq 124 ]; then
                 echo "  [FAIL] (timeout after ${TIMEOUT}s)"
             else
                 echo "  [FAIL] (${duration}s)"
             fi
             echo ""
             echo "  Output:"
-            echo "$output" | sed 's/^/    /'
+            printf '%s\n' "$output" | sed 's/^/    /'
             failed=$((failed + 1))
         fi
     fi
@@ -165,7 +171,6 @@ for test in "${tests[@]}"; do
     echo ""
 done
 
-# Print summary
 echo "========================================"
 echo " Test Results Summary"
 echo "========================================"
@@ -176,15 +181,14 @@ echo "  Skipped: $skipped"
 echo ""
 
 if [ "$RUN_INTEGRATION" = false ] && [ ${#integration_tests[@]} -gt 0 ]; then
-    echo "Note: Integration tests were not run (they take 10-30 minutes)."
-    echo "Use --integration flag to run full workflow execution tests."
+    echo "Note: Integration tests were not run."
+    echo "Use --integration for live Claude Code behavior tests."
     echo ""
 fi
 
-if [ $failed -gt 0 ]; then
+if [ "$failed" -gt 0 ]; then
     echo "STATUS: FAILED"
     exit 1
-else
-    echo "STATUS: PASSED"
-    exit 0
 fi
+
+echo "STATUS: PASSED"

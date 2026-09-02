@@ -20,11 +20,23 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+A plan is comprehensive **within its declared task boundary**, not a requirement
+to understand or enumerate the whole repository. If the spec covers multiple
+independent subsystems, it should have been broken into sub-project specs during
+brainstorming. If it wasn't, suggest separate plans—one per independently
+testable deliverable.
+
+For a large or unfamiliar existing repository, if the plan cannot name the entry
+path, owner, relevant contract, and proof, invoke `superpowers:codebase-navigation` first.
+Record the bounded task map and its Unknowns; do not expand discovery merely to
+make a plan feel exhaustive.
 
 ## File Structure
 
-Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
+Before defining tasks, map out only the files and boundaries supported by the
+declared task map: what each will be created/modified for, who owns the rule,
+and how the change is proved. This is where decomposition decisions get locked
+in. Do not inventory unrelated directories to make the plan look complete.
 
 - Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
 - You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
@@ -164,7 +176,7 @@ After saving the plan, offer execution choice:
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
-- Fresh subagent per task + two-stage review
+- Fresh implementer per task + task-scoped review with spec-compliance and quality verdicts
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans

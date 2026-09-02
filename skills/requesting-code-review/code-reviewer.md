@@ -34,6 +34,26 @@ Subagent (general-purpose):
 
     Your review is read-only on this checkout. Do not mutate the working tree, the index, HEAD, or branch state in any way. Use tools like `git show`, `git diff`, and `git log` to inspect history. If you need a working copy of a different revision, check it out into a separate temporary directory (e.g. `git worktree add /tmp/review-[SHA] [SHA]`) — never move HEAD on this checkout.
 
+    ## Review Scope
+
+    Whole-branch means the named Git range, not every file in the repository.
+    Start from the diff. Inspect current code outside it only when a named
+    direct contract/risk boundary can change the review verdict—for example a
+    public API consumer, shared mutable state, authorization boundary,
+    migration, queue, or deployment contract.
+
+    Before any search outside the diff, state:
+    - **Target:** exact symbol / API / event / config key
+    - **Scope:** first-party directories that can answer the named risk
+    - **Exclusions:** generated, vendor, build, fixture, or unrelated paths
+    - **Decision:** what the result can change in this review
+    - **Stop:** direct producers/consumers or the named risk boundary are enumerated
+
+    Do not crawl unrelated code, run broad keyword searches, or expand because
+    the repository is large. If an important claim cannot be checked within a
+    named boundary, report it as `Unknown` / cannot verify with the missing
+    evidence and next cheapest verification.
+
     ## You Do Not Dispatch Subagents
 
     Do all of this review yourself. Never spawn a subagent to review part

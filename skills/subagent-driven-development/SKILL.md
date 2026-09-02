@@ -14,7 +14,7 @@ Execute plan by dispatching a fresh implementer subagent per task, a task review
 **Narration:** between tool calls, narrate at most one short line — the
 ledger and the tool results carry the record.
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are the four named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute only the tasks in the approved finite plan without stopping; continuous execution never authorizes adding unrelated tasks, reopening completed investigation, or widening repository scope. The only reasons to stop are the four named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
 
 **Rulings, not stalls.** A running plan does not wait on a human. Conflicts,
 ambiguities, plan defects, a cap you would have asked to exceed — decide
@@ -83,14 +83,14 @@ digraph process {
         "Append completion to ledger, mark todo complete" [shape=box];
     }
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
+    "Setup: worktree, ledger check, task map, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
     "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
     "Final review clean: delete this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Setup: worktree, ledger check, task map, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer asks questions?";
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, tests, commits, self-reviews";
@@ -159,6 +159,20 @@ authority the plan argues from, and conflicts inside the plan resolve
 against it. A plan with no reachable spec gets a ledger note saying so —
 rulings made without one are provisional.
 
+### Scope map for a large or unfamiliar existing repository
+
+Before dispatching Task 1, determine whether the plan already identifies each
+task's current entry/path, owner, relevant contract, direct risk boundary, and
+proof. If it does not, invoke `superpowers:codebase-navigation` once to establish a
+bounded task map. Record its pointers in the plan ledger.
+
+Do not let an implementer rediscover the whole repository to feel safe. A
+large repository, a missing detail, or a desire to be comprehensive is not a
+reason to send a worker into unbounded exploration. Expand only when current
+evidence crosses a named interface, state, authorization, configuration,
+queue, migration, or deployment boundary that can change the task decision.
+Otherwise record `Unknown` and the next cheapest verification.
+
 Before dispatching Task 1, scan the plan once for conflicts, writing down
 what you checked as you check it:
 
@@ -216,7 +230,7 @@ that implementer. Single-file mechanical fixes also take the cheapest tier.
 **Task complexity signals (implementation tasks):**
 - Touches 1-2 files with a complete spec → cheap model
 - Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
+- Requires design judgment across named task boundaries → most capable model
 
 ## The Task Loop
 
@@ -251,15 +265,17 @@ and fix-round diffs need it.
 - **Task brief:** before dispatching an implementer, run this skill's
   `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
   uniquely named file and prints the path. Compose the dispatch so the
-  brief stays the single source of
-  requirements. Your dispatch should contain: (1) one line on where this
-  task fits in the project; (2) the brief path, introduced as "read this
-  first — it is your requirements, with the exact values to use verbatim";
-  (3) interfaces and decisions from earlier tasks that the brief cannot
-  know; (4) your resolution of any ambiguity you noticed in the brief;
-  (5) the report-file path and report contract. Exact values (numbers,
-  magic strings, signatures, test cases) appear only in the brief. Never
-  make a subagent read the whole plan file.
+  brief stays the single source of requirements. Your dispatch should
+  contain: (1) one line on where this task fits in the project; (2) the
+  brief path, introduced as "read this first — it is your requirements,
+  with the exact values to use verbatim"; (3) relevant code-note/task-map
+  pointers naming the entry/path, owner, direct callers/consumers or risks,
+  invariants, and expected proof; (4) interfaces and decisions from earlier
+  tasks that the brief cannot know; (5) your resolution of any ambiguity you
+  noticed in the brief; (6) the report-file path and report contract. Exact
+  values (numbers, magic strings, signatures, test cases) appear only in the
+  brief. Never make a subagent read the whole plan file or rediscover the
+  whole repository.
 - **Report file:** name the implementer's report file after the brief
   (brief `…/task-N-brief.md` → report `…/task-N-report.md`) and put it in
   the dispatch prompt. The implementer writes the full report there and
@@ -291,12 +307,16 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
-**NEEDS_CONTEXT:** The implementer needs information that wasn't provided. Provide the missing context and re-dispatch.
+**NEEDS_CONTEXT:** The implementer needs information that wasn't provided.
+Require the exact Unknown, evidence already checked, named boundary, and
+next cheapest verification. Provide that bounded context (or authorize a
+`superpowers:codebase-navigation` task map) before re-dispatching—do not answer with
+"read more of the repo."
 
 **BLOCKED:** The implementer cannot complete the task. Assess the blocker:
-1. If it's a context problem, provide more context and re-dispatch with the same model
+1. If it's a bounded context problem, provide the missing path/contract/risk context and re-dispatch with the same model
 2. If the task requires more reasoning, re-dispatch with a more capable model
-3. If the task is too large, break it into smaller pieces
+3. If the task is too large, break it into smaller pieces with independent proof boundaries
 4. If the plan itself is wrong, rule on the correction, ledger it, and re-dispatch with the ruling carried in the dispatch
 
 **Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change.
@@ -333,7 +353,9 @@ needed.
   test hygiene, review method) — the constraints block is for what THIS
   project's spec demands.
 - Do not add open-ended directives like "check all uses" or "run race tests
-  if useful" without a concrete, task-specific reason
+  if useful" without a concrete, task-specific reason. Any search beyond the
+  diff names its target, first-party scope, exclusions, decision it can
+  change, and stop condition.
 - Do not ask a reviewer to re-run tests the implementer already ran on the
   same code — the implementer's report carries the test evidence
 - Do not pre-judge findings for the reviewer — never instruct a reviewer to
@@ -454,6 +476,12 @@ superpowers:requesting-code-review's
 [code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
 the ledger's deferred-minor and parked lines so it can triage which must be
 fixed before merge.
+
+Whole-branch means the named Git change range, not the whole repository. The
+final reviewer starts from that diff and may inspect current code outside it
+only for a named direct contract/risk boundary; it records why that check can
+change the merge decision and stops when the boundary is resolved. A large
+repository is not itself a reason to re-audit unrelated code.
 
 If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.

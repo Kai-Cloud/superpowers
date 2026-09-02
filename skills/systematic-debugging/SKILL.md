@@ -41,9 +41,34 @@ Use for ANY technical issue:
 - You're in a hurry (rushing guarantees rework)
 - Manager wants it fixed NOW (systematic is faster than thrashing)
 
+## Investigation Boundary
+
+Before Phase 1, state the smallest investigation contract that can identify a
+root cause:
+
+```text
+Observed symptom / failing test:
+Candidate entry or failing component:
+Named path or direct boundary to trace:
+Relevant state / contract / configuration risk:
+Evidence that can confirm or reject the next hypothesis:
+Stop condition:
+```
+
+The boundary may expand only when current evidence crosses a named API, event,
+state, configuration, authorization, queue, or deployment boundary that can
+change the hypothesis or fix. Record why it expanded. **Never inspect every component merely because the system has multiple components.** A large repository, a generic desire to be thorough, or uncertainty alone is not an investigation boundary.
+
+If the candidate entry/path cannot be named in a large or unfamiliar existing
+repository, invoke `superpowers:codebase-navigation` before Phase 1 to build a
+bounded task map. If evidence remains insufficient after the bounded path is
+traced, record `Unknown`, the missing evidence, and the next cheapest
+verification. Do not convert “I do not know yet” into an unlimited
+repository-reading mission.
+
 ## The Four Phases
 
-You MUST complete each phase before proceeding to the next.
+You MUST complete each applicable phase before proceeding to the next.
 
 ### Phase 1: Root Cause Investigation
 
@@ -69,20 +94,24 @@ You MUST complete each phase before proceeding to the next.
 
 4. **Gather Evidence in Multi-Component Systems**
 
-   **WHEN system has multiple components (CI → build → signing, API → service → database):**
+   **WHEN the named failing path crosses multiple components** (CI → build → signing, API → service → database):
 
-   **BEFORE proposing fixes, add diagnostic instrumentation:**
+   **BEFORE proposing fixes, instrument only the boundaries on that named path:**
    ```
-   For EACH component boundary:
-     - Log what data enters component
-     - Log what data exits component
-     - Verify environment/config propagation
-     - Check state at each layer
+   For EACH boundary on the failing path:
+     - Log what data enters the component
+     - Log what data exits the component
+     - Verify the relevant environment/config propagation
+     - Check the state needed for this hypothesis
 
-   Run once to gather evidence showing WHERE it breaks
-   THEN analyze evidence to identify failing component
+   Run once to gather evidence showing WHERE this path breaks
+   THEN analyze evidence to identify the failing component
    THEN investigate that specific component
    ```
+
+   Do not add diagnostics to unrelated components merely because they exist.
+   If evidence exposes a new boundary, record why it can change the hypothesis
+   before expanding the path.
 
    **Example (multi-layer system):**
    ```bash
@@ -119,26 +148,25 @@ You MUST complete each phase before proceeding to the next.
 
 ### Phase 2: Pattern Analysis
 
-**Find the pattern before fixing:**
+**Find the relevant pattern before fixing:**
 
-1. **Find Working Examples**
-   - Locate similar working code in same codebase
-   - What works that's similar to what's broken?
+1. **Find a Named Working Example**
+   - Locate one directly comparable working path in the declared investigation scope
+   - State why it is comparable to the broken path
 
-2. **Compare Against References**
-   - If implementing pattern, read reference implementation COMPLETELY
-   - Don't skim - read every line
-   - Understand the pattern fully before applying
+2. **Compare Against the Named Reference**
+   - If implementing that pattern, read the relevant reference implementation completely
+   - Do not skim the named reference, but do not read every vaguely similar subsystem
+   - Understand the applicable contract/invariant before applying it
 
-3. **Identify Differences**
-   - What's different between working and broken?
-   - List every difference, however small
-   - Don't assume "that can't matter"
+3. **Identify Material Differences**
+   - What differs between working and broken that can affect this hypothesis or contract?
+   - Record each material difference and why it can matter
+   - Do not enumerate unrelated differences merely to feel thorough
 
-4. **Understand Dependencies**
-   - What other components does this need?
-   - What settings, config, environment?
-   - What assumptions does it make?
+4. **Understand Applicable Dependencies**
+   - Which direct components, settings, config, environment, or assumptions affect this path?
+   - Expand only when evidence identifies a boundary that can change the hypothesis
 
 ### Phase 3: Hypothesis and Testing
 
@@ -160,10 +188,11 @@ You MUST complete each phase before proceeding to the next.
    - DON'T add more fixes on top
 
 4. **When You Don't Know**
-   - Say "I don't understand X"
-   - Don't pretend to know
-   - Ask for help
-   - Research more
+   - Say "Unknown: I don't understand X"
+   - Name the missing evidence and the next cheapest verification
+   - Ask one focused question when a human decision is genuinely needed
+   - Research only the named path/boundary that can resolve the Unknown
+   - Do not turn uncertainty into unbounded repository exploration
 
 ### Phase 4: Implementation
 

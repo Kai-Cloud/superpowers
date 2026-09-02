@@ -23,6 +23,12 @@ Dispatch a code reviewer subagent to catch issues before they cascade. The revie
 
 ## How to Request
 
+A review begins from a named Git range and its requirements, not from an
+assumption that a reviewer should reread an entire repository. If the change
+may cross a direct contract boundary, name that boundary and why it can affect
+the verdict. For a large/unfamiliar repository without a known path, establish
+a bounded task map with `superpowers:codebase-navigation` before requesting broad review.
+
 **1. Get git SHAs:**
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main

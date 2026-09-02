@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: Use when starting a new project, or when a feature or behavior change has unresolved requirements, multiple valid approaches, or a cross-module design decision.
 ---
 
 # Brainstorming Ideas Into Designs
@@ -34,22 +34,39 @@ override it:
   built stays labeled throwaway.
 - **Bounded** — a well-scoped change to code that already exists in
   this repo: a new flag, a small endpoint, a one-file fix.
-  Understanding the kind of app is not enough — bounded means the flow
-  you are changing is already here to read. If there is no existing
-  flow to change, the task is not bounded. Ask the clarifying
-  questions that matter, present a short design IN CHAT (a few
-  sentences to a few short paragraphs), and STOP. Implementation
-  starts only after your human partner says yes to that design — a
-  bounded task's approval is as hard a gate as an architectural
-  one. No spec file, no implementation plan document.
+  Bounded means the flow you are changing is already identified, not
+  merely that you recognize the kind of app. If the relevant entry,
+  owner, or contract is unknown in a large existing repository, invoke
+  `superpowers:codebase-navigation` to establish a bounded task map first. Do not
+  classify it architectural merely because the repository is large or
+  unfamiliar. Ask the clarifying questions that matter, present a short
+  design IN CHAT (a few sentences to a few short paragraphs), and STOP.
+  Implementation starts only after your human partner says yes to that
+  design — a bounded task's approval is as hard a gate as an
+  architectural one. No spec file, no implementation plan document.
 - **Architectural** — new projects, new subsystems, changes that
   restructure how components fit together or alter interfaces others
   depend on. Follow the full process: questions, approaches, sectioned
   design, written spec, then the writing-plans skill.
 
-When in doubt between two paths, take the heavier one. The ratchet is
-one-way: hidden complexity discovered mid-task upgrades the path —
-stop, say so, and step up. Nothing downgrades mid-task.
+## Scope and escalation in existing repositories
+
+A large or unfamiliar repository by itself is not an architectural change.
+When the requested behavior is local but its entry, owner, or contract is not
+yet known, invoke `superpowers:codebase-navigation` first and establish a
+bounded task map.
+
+Upgrade only when evidence shows that the requested change creates or
+restructures a cross-module public contract, a new subsystem, a durable state
+owner, a security/authorization boundary, a migration, or a real deployment /
+recovery boundary. Record the evidence, the expanded boundary, and the
+implementation decision it changes.
+
+Missing evidence is not an upgrade trigger. If a bounded investigation ends
+without enough evidence, record `Unknown` and the next cheapest verification;
+do not write an architectural spec merely to discover the repository. Reclassify
+when evidence changes the scope—do not preserve an unnecessarily heavy path
+just because it was selected first.
 
 ## Anti-Pattern: "Too Simple To Need Approval"
 
@@ -65,11 +82,11 @@ artifact, never the approval.
 | Thought | Reality |
 |---------|---------|
 | "This is too simple to need a design" | Simple means a short design, not no design. Two sentences in chat, then approval. |
-| "I'll call it bounded and skip the spec" | Reaching for a label to skip work IS the doubt — take the heavier path. |
+| "I'll call it bounded and skip the spec" | Bounded work skips a spec only after its entry, owner, and applicable contract are identified or intentionally mapped; uncertainty alone is not proof it is architectural. |
 | "It's bounded and the design is obvious — I'll start while they read it" | The gate is the approval, not the design's length. Present, then stop until you hear yes. |
-| "I understand this kind of app, so it's bounded" | Bounded measures the repo, not your familiarity. A new project has no existing flow — it is architectural. |
+| "I understand this kind of app, so it's bounded" | Familiarity is not evidence. In an existing repo with an unknown flow, use `superpowers:codebase-navigation` before classifying; a new project has no existing flow and is architectural. |
 | "The spike works, so I'll keep the code" | A spike's output is an answer. Keeping the code is a new request — classify it. |
-| "It grew, but I'm almost done — no need to re-classify" | Hidden complexity upgrades the path mid-task. Stop and say so. |
+| "It grew, but I'm almost done — no need to re-classify" | Expand only when evidence identifies a real new boundary; record what changed and reclassify proportionally. |
 | "They approved the spike, so the follow-up change is approved too" | Each task gets its own classification and its own approval. |
 
 ## Checklist
@@ -85,14 +102,14 @@ your path and complete them in order.
 5. **Report findings** — a recommendation; label anything built as throwaway
 
 **Bounded:**
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore task context** — inspect repository instructions, the named entry/path, relevant docs, and recent changes; do not inventory every repository file
 2. **Ask clarifying questions** — one at a time, the ones that matter
 3. **Present short design in chat** — approach, files touched, testing
 4. **Get approval** — STOP and wait for an explicit yes; presenting the design and starting in the same breath is skipping the gate
 5. **Implement** — proceed with the normal development workflow (TDD applies); no plan document
 
 **Architectural:**
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore task context** — inspect repository instructions, named boundaries and affected paths, relevant docs, and recent changes; expand only on evidence
 2. **Offer the visual companion just-in-time** — NOT upfront. The first time a question would genuinely be clearer shown than described, offer it then (its own message); on approval its browser tab opens for you. If no visual question ever arises, never offer it. See the Visual Companion section below.
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
@@ -106,6 +123,8 @@ your path and complete them in order.
 
 ```dot
 digraph brainstorming {
+    "Existing repository and task path unknown?" [shape=diamond];
+    "Use codebase-navigation\nfor bounded task map" [shape=box];
     "Classify: spike / bounded / architectural" [shape=diamond];
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
@@ -124,6 +143,9 @@ digraph brainstorming {
     "Invoke writing-plans skill" [shape=doublecircle];
     "Hidden complexity? Upgrade path" [shape=box];
 
+    "Existing repository and task path unknown?" -> "Use codebase-navigation\nfor bounded task map" [label="yes"];
+    "Existing repository and task path unknown?" -> "Classify: spike / bounded / architectural" [label="no"];
+    "Use codebase-navigation\nfor bounded task map" -> "Classify: spike / bounded / architectural";
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
     "Classify: spike / bounded / architectural" -> "Ask clarifying questions (bounded)" [label="bounded"];
     "Classify: spike / bounded / architectural" -> "Explore project context" [label="architectural"];
@@ -163,7 +185,7 @@ is the whole process.
 
 **Understanding the idea:**
 
-- Check out the current project state first (files, docs, recent commits)
+- Inspect the current task context first: repository instructions, the named entry/path or a bounded navigation map, relevant docs, and recent changes. Do not inventory the repository merely because it is unfamiliar.
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea

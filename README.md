@@ -260,21 +260,23 @@ turn loses the bootstrap — start a fresh session if skills stop triggering.
 
 ## The Basic Workflow
 
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
+1. **codebase-navigation** - For a large or unfamiliar existing repository, first establishes a bounded task map: entry path, owner, direct risks, proof, and stop condition. It does not inventory every file.
 
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
+2. **brainstorming** - When design choices remain, classifies the request as spike, bounded, or architectural. A large repository alone is not an architectural change.
 
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
+3. **using-git-worktrees** - Creates or detects isolation when the chosen task/delivery path needs it, then sets up only the dependencies and baseline proof relevant to that path.
 
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
+4. **writing-plans** - For genuinely architectural work, breaks the approved bounded design into independently testable tasks with explicit interfaces and evidence.
 
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
+5. **subagent-driven-development** or **executing-plans** - Executes a plan through task-scoped briefs, focused implementation, review, and bounded fix loops. Workers do not rediscover the whole repository.
 
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
+6. **test-driven-development** and **verification-before-completion** - Use a failing proof before implementation where applicable, then run verification complete for the named claim; expand to integration gates when a named boundary requires it.
 
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
+7. **requesting-code-review** / **receiving-code-review** - Start from a diff or concrete review finding. Searches outside the change require a named target, scope, exclusions, decision, and stop condition.
 
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
+8. **finishing-a-development-branch** - Verifies the integration gate required for the branch, presents merge/PR/keep choices, and cleans up only work it owns.
+
+**The agent selects the smallest materially relevant workflow for the named task.** Strong evidence and review are mandatory; unbounded repository archaeology is not.
 
 ## Community
 
@@ -293,7 +295,8 @@ Superpowers is built by [Jesse Vincent](https://blog.fsck.com) and the rest of t
 
 **Debugging**
 - **systematic-debugging** - 4-phase root cause process (includes root-cause-tracing, defense-in-depth, condition-based-waiting techniques)
-- **verification-before-completion** - Ensure it's actually fixed
+- **codebase-navigation** - Bounded task mapping for large or unfamiliar existing repositories
+- **verification-before-completion** - Ensure a named claim is actually proven
 
 **Collaboration** 
 - **brainstorming** - Socratic design refinement
@@ -304,7 +307,7 @@ Superpowers is built by [Jesse Vincent](https://blog.fsck.com) and the rest of t
 - **receiving-code-review** - Responding to feedback
 - **using-git-worktrees** - Parallel development branches
 - **finishing-a-development-branch** - Merge/PR decision workflow
-- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
+- **subagent-driven-development** - Fast iteration with task-scoped review returning spec-compliance and quality verdicts
 
 **Meta**
 - **writing-skills** - Create new skills following best practices (includes testing methodology)

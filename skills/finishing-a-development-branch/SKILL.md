@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work
+description: Use when implementation is ready for integration, its required verification has passed, and a human must decide how to integrate the work
 ---
 
 # Finishing a Development Branch
@@ -13,9 +13,14 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 ## Step 1: Verify Tests
 
-Run the project's full test suite (`npm test` / `cargo test` / `pytest` / `go test ./...`).
+Before integration, run the repository's required integration gate. This is
+often the full suite (`npm test` / `cargo test` / `pytest` / `go test ./...`),
+but the command must be complete for the branch's named integration claim—not
+an automatic excuse to run every unrelated suite. Follow any consumer-repo
+release rule that names the required gate; otherwise record why the selected
+suite covers the changed paths and direct boundaries.
 
-**If tests fail**, report the failures and stop — the menu comes after a green suite:
+**If the selected integration gate fails**, report the failures and stop — the menu comes after a green suite:
 
 ```
 Tests failing (<N> failures). Must fix before completing:

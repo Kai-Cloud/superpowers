@@ -9,8 +9,14 @@ run_claude() {
     local allowed_tools="${3:-}"
     local output_file=$(mktemp)
 
-    # Build command as an argv array so timeout wraps claude directly.
-    local cmd=(claude -p "$prompt")
+    # Build command as an argv array so timeout wraps Claude directly.
+    # PLUGIN_DIR lets tests exercise this checkout rather than whichever
+    # marketplace plugin happens to be installed globally.
+    local claude_bin="${CLAUDE_BIN:-claude}"
+    local cmd=("$claude_bin" -p "$prompt")
+    if [ -n "${PLUGIN_DIR:-}" ]; then
+        cmd+=(--plugin-dir="$PLUGIN_DIR")
+    fi
     if [ -n "$allowed_tools" ]; then
         cmd+=(--allowed-tools="$allowed_tools")
     fi

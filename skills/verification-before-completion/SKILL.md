@@ -24,13 +24,19 @@ If you haven't run the verification command in this message, you cannot claim it
 ```
 BEFORE claiming any status or expressing satisfaction:
 
-1. IDENTIFY: What command proves this claim?
-2. RUN: Execute the FULL command (fresh, complete)
+1. IDENTIFY: What exact claim am I making, and which command proves it?
+2. RUN: Execute the command fresh and completely for that named claim.
 3. READ: Full output, check exit code, count failures
 4. VERIFY: Does output confirm the claim?
    - If NO: State actual status with evidence
    - If YES: State claim WITH evidence
 5. ONLY THEN: Make the claim
+
+“Full” means **complete for the named claim, not the largest available suite by
+default.** A focused unit/regression claim needs its focused proof; a branch
+integration/production-readiness claim may require the full suite. Expand
+verification only when a named integration boundary, contract, or risk makes
+the broader command necessary.
 
 Skip any step = lying, not verifying
 ```

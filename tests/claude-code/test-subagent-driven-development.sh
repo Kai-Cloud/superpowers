@@ -36,14 +36,27 @@ fi
 
 echo ""
 
-# Test 2: Verify skill describes correct workflow order
-echo "Test 2: Workflow ordering..."
+# Test 2: Verify one task reviewer returns both required verdicts
+echo "Test 2: Task reviewer verdicts..."
 
-output=$(run_claude "In the subagent-driven-development skill, what comes first: spec compliance review or code quality review? Answer using exactly this structure:
-First: <review type>
-Second: <review type>" "$CLAUDE_PROMPT_TIMEOUT")
+output=$(run_claude "In the current subagent-driven-development skill, does one task reviewer return both spec compliance and task quality verdicts? Answer using exactly this structure:
+Spec compliance verdict: <yes or no>
+Task quality verdict: <yes or no>
+Separate code-quality reviewer required: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
 
-if assert_order "$output" "First:.*spec.*compliance" "Second:.*code.*quality" "Spec compliance before code quality"; then
+if assert_contains "$output" "Spec compliance verdict:.*yes" "Task reviewer returns spec compliance verdict"; then
+    : # pass
+else
+    exit 1
+fi
+
+if assert_contains "$output" "Task quality verdict:.*yes" "Task reviewer returns task quality verdict"; then
+    : # pass
+else
+    exit 1
+fi
+
+if assert_contains "$output" "Separate code-quality reviewer required:.*no" "No obsolete second reviewer required"; then
     : # pass
 else
     exit 1
@@ -83,7 +96,7 @@ else
     exit 1
 fi
 
-if assert_contains "$output" "Step 1\|beginning\|start\|Load Plan" "Read at beginning"; then
+if assert_contains "$output" "Step 1\|beginning\|start\|Load Plan\|Setup" "Read during setup"; then
     : # pass
 else
     exit 1
@@ -91,18 +104,20 @@ fi
 
 echo ""
 
-# Test 5: Verify spec compliance reviewer is skeptical
-echo "Test 5: Spec compliance reviewer mindset..."
+# Test 5: Verify task reviewer is skeptical and diff-grounded
+echo "Test 5: Task reviewer mindset..."
 
-output=$(run_claude "What is the spec compliance reviewer's attitude toward the implementer's report in subagent-driven-development?" "$CLAUDE_PROMPT_TIMEOUT")
+output=$(run_claude "In the current subagent-driven-development skill, how must the task reviewer treat the implementer's report? Answer using exactly this structure:
+Trust report without verification: <yes or no>
+Verify claims against task diff: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
 
-if assert_contains "$output" "not.*trust\|don't trust\|skeptical\|verify.*independently\|suspiciously" "Reviewer is skeptical"; then
+if assert_contains "$output" "Trust report without verification:.*no" "Reviewer does not trust report without verification"; then
     : # pass
 else
     exit 1
 fi
 
-if assert_contains "$output" "read.*code\|inspect.*code\|verify.*code\|read.*diff\|trust.*diff" "Reviewer reads code"; then
+if assert_contains "$output" "Verify claims against task diff:.*yes" "Reviewer verifies claims against task diff"; then
     : # pass
 else
     exit 1
@@ -129,20 +144,20 @@ fi
 
 echo ""
 
-# Test 7: Verify full task text is provided
+# Test 7: Verify task-scoped brief is provided
 echo "Test 7: Task context provision..."
 
 output=$(run_claude "In subagent-driven-development, how does the controller provide task information to the implementer subagent? Answer using exactly this structure:
-Controller provides: <directly or by file>
-Implementer must read plan file: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
+Controller provides: <task brief file or whole plan>
+Implementer must read whole plan file: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
 
-if assert_contains "$output" "provide.*directly\|full.*text\|paste\|include.*prompt" "Provides text directly"; then
+if assert_contains "$output" "Controller provides:.*task.*brief\|Controller provides:.*file" "Provides task-scoped brief file"; then
     : # pass
 else
     exit 1
 fi
 
-if assert_contains "$output" "Implementer must read plan file:.*no" "Doesn't make subagent read file"; then
+if assert_contains "$output" "Implementer must read whole plan file:.*no" "Doesn't make subagent read whole plan"; then
     : # pass
 else
     exit 1
