@@ -11,24 +11,61 @@ description: Use when creating a new skill or making a behavior-shaping change t
 
 **Personal skills live in your runtime's skills directory** (`~/.claude/skills/` on Claude Code) — see [codex-tools.md](../using-superpowers/references/codex-tools.md) or [gemini-tools.md](../using-superpowers/references/gemini-tools.md) for the path on those runtimes. Codex, Copilot CLI, and Gemini CLI all also recognize `~/.agents/skills/` as a cross-runtime alias.
 
-You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
+Select the lowest validation tier that can prove the named behavior, establish a failing proof, make the smallest skill change, and verify that same proof. Pressure scenarios and repeated model runs belong only to tiers that explicitly authorize them.
 
-**Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
+**Core principle:** Evidence must match the claim. A deterministic routing or wording contract does not need a model campaign; a claim about behavior under pressure does.
 
-**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. This skill adapts its RED-GREEN-REFACTOR principle proportionally to agent instructions.
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
 
 ## Behavior-Shaping Changes
 
 Use this workflow when creating a skill or changing discovery, routing, required
-process, authority, escalation, or other agent behavior. Full skill
-RED-GREEN-REFACTOR is required for those behavior-shaping changes.
+process, authority, escalation, or other agent behavior. Every behavior-shaping
+change gets a RED-GREEN-REFACTOR proof at the lowest applicable validation tier.
 
 Do not invoke this workflow for read-only review, a test/fixture/harness or
 test-runner correction, generated/meta artifacts, or format-only human
 documentation. Use focused local proof for that non-behavioral work. If a
 wording change may alter behavior, treat it as behavior-shaping.
+
+## Validation Tiers
+
+Choose one tier before authoring. Record the named behavior, proof, and stop
+condition. The default is Focused.
+
+### Focused — default
+
+Use for a bounded clarification, output contract, routing predicate, or
+narrow behavior rule with deterministic local evidence. Write one failing
+static/fixture assertion, make the smallest change, and run that assertion plus
+direct syntax checks. Do not invoke a model, subagent, pressure scenario, broad
+suite, or repeated sampling.
+
+### Targeted Behavior — explicit opt-in
+
+Use only when your human partner explicitly approves model evaluation for a
+change to discovery, routing, authority, or a workflow entry. Define one bounded
+before/after scenario per affected decision. Before running, fix the scenario
+list, model, run count, time limit, and cost limit. Stop after that budget and
+report variance or failure; do not edit tests or repeat runs merely to obtain a
+pass.
+
+### Full Pressure — explicit opt-in
+
+Use only when your human partner explicitly approves it for a new skill,
+security/permission discipline, irreversible-action safeguards, broad routing
+changes, or when an approved Targeted Behavior run directly proves that
+pressure/variance is the remaining risk. Before running, fix the scenario list,
+model, run count, time limit, and cost limit. Stop at the budget and report the
+evidence.
+
+**Do not escalate a failed tier automatically.** A Focused failure means fix the
+named local contract or report it. A Targeted Behavior failure means report the
+behavior and budget result. Moving to another tier is a separate explicit
+choice; uncertainty, available agents, or the existence of an eval harness is
+not authorization.
 
 ## What is a Skill?
 
@@ -42,18 +79,19 @@ A **skill** is a reference guide for proven techniques, patterns, or tools. Skil
 
 | TDD Concept | Skill Creation |
 |-------------|----------------|
-| **Test case** | Pressure scenario with subagent |
-| **Production code** | Skill document (SKILL.md) |
-| **Test fails (RED)** | Agent violates rule without skill (baseline) |
-| **Test passes (GREEN)** | Agent complies with skill present |
-| **Refactor** | Close loopholes while maintaining compliance |
-| **Write test first** | Run baseline scenario BEFORE writing skill |
-| **Watch it fail** | Document exact rationalizations agent uses |
-| **Minimal code** | Write skill addressing those specific violations |
-| **Watch it pass** | Verify agent now complies |
-| **Refactor cycle** | Find new rationalizations → plug → re-verify |
+| **Test case** | Tier-appropriate proof: local assertion or approved model scenario |
+| **Production code** | Skill document (`SKILL.md`) |
+| **Test fails (RED)** | The named contract or behavior fails without the change |
+| **Test passes (GREEN)** | The same proof passes with the change |
+| **Refactor** | Clarify wording while preserving the same proof |
+| **Write test first** | Establish the selected tier and failing proof before editing |
+| **Watch it fail** | Confirm the failure is the named behavior, not harness noise |
+| **Minimal code** | Write only enough guidance to address that failure |
+| **Watch it pass** | Re-run the same bounded proof |
+| **Refactor cycle** | Stay within the selected tier and budget |
 
-The entire skill creation process follows RED-GREEN-REFACTOR.
+Every skill change follows RED-GREEN-REFACTOR. The selected validation tier
+determines whether its proof is a local assertion or an approved model run.
 
 ## When to Create a Skill
 
@@ -562,44 +600,46 @@ description: use when implementing any feature or bugfix, before writing impleme
 
 ## RED-GREEN-REFACTOR for Skills
 
-Follow the TDD cycle:
+Use the selected tier for every phase:
 
-### RED: Write Failing Test (Baseline)
+### RED: Establish the Named Failure
 
-Run pressure scenario with subagent WITHOUT the skill. Document exact behavior:
-- What choices did they make?
-- What rationalizations did they use (verbatim)?
-- Which pressures triggered violations?
+- **Focused:** add one deterministic local assertion that fails for the intended
+  contract—not for formatting noise or an unrelated harness defect.
+- **Targeted Behavior:** run only the pre-approved before scenario(s) within the
+  fixed budget and record the observed decision/output.
+- **Full Pressure:** run only the pre-approved baseline pressure matrix and
+  record the exact rationalizations or violations.
 
-This is "watch the test fail" - you must see what agents naturally do before writing the skill.
+If the proof does not exhibit the named failure, stop. Do not broaden the task
+or invent a larger campaign.
 
-### GREEN: Write Minimal Skill
+### GREEN: Write the Minimum Guidance
 
-Write skill that addresses those specific rationalizations. Don't add extra content for hypothetical cases.
+Change only the instruction needed for the observed failure, then rerun the same
+proof under the same tier and budget. A passing local assertion does not prove
+model behavior; a passing model sample does not justify a repository-wide claim.
 
-Run same scenarios WITH skill. Agent should now comply.
+### REFACTOR: Preserve the Proof Boundary
 
-### REFACTOR: Close Loopholes
+Clarify or compress wording while rerunning the same bounded proof. New findings
+outside the named behavior are Deferred. A finding that changes the intended
+scope requires a new classification and explicit tier choice.
 
-Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
+### Model-Test Rules
 
-### Micro-Test Wording Before Full Scenarios
+These apply only to Targeted Behavior and Full Pressure:
 
-Full pressure-scenario runs are the final gate, but they are slow and expensive per iteration. Verify the wording itself first with micro-tests:
+1. Use fresh-context samples and the realistic full skill/prompt context.
+2. Include a no-guidance control when comparing wording.
+3. Use exactly the approved run count—never add repetitions after seeing results.
+4. Read every flagged sample; automated counts alone are not verdicts.
+5. Report variance and failures honestly. Do not rewrite acceptance criteria or
+   rerun until green.
 
-1. **One fresh-context sample per call** — a raw API call, or a single-shot subagent if you don't have API access. System prompt = the realistic context the guidance will live in (the full skill or prompt template, not the guidance in isolation); user message = a task that tempts the failure.
-2. **Always include a no-guidance control.** If the control doesn't exhibit the failure, there is nothing to fix — stop, don't author the guidance.
-3. **5+ reps per variant.** Single samples lie.
-4. **Manually read every flagged match.** Score programmatically if you like, but template echoes and quoted counter-examples masquerade as hits; automated counts alone overstate both failure and success.
-5. **Variance is a metric.** When guidance lands, reps converge on the same shape. Five different interpretations across five reps means the wording isn't binding — tighten the form before adding words.
-
-Micro-tests verify wording; they do not replace pressure scenarios for discipline skills.
-
-**Testing methodology:** See [testing-skills-with-subagents.md](testing-skills-with-subagents.md) for the complete testing methodology:
-- How to write pressure scenarios
-- Pressure types (time, sunk cost, authority, exhaustion)
-- Plugging holes systematically
-- Meta-testing techniques
+For approved pressure work, use
+[testing-skills-with-subagents.md](testing-skills-with-subagents.md). That
+reference does not itself authorize model runs or a higher tier.
 
 ## Anti-Patterns
 
@@ -624,57 +664,37 @@ helper1, helper2, step3, pattern4
 
 ## STOP: Before Moving to Next Skill
 
-**After writing a new or behavior-shaping skill change, you MUST STOP and complete the deployment process.**
+After a new or behavior-shaping skill change, finish the proof selected for that
+change before starting another skill. Do not add another tier or model run while
+waiting; report the current tier's result and stop at its budget.
 
-**Do NOT:**
-- Create multiple skills in batch without testing each
-- Move to next skill before current one is verified
-- Skip testing because "batching is more efficient"
+## Skill Change Checklist
 
-**The deployment checklist below is MANDATORY for EACH skill.**
+Create todos only for applicable items—not every item in every tier.
 
-Deploying untested skills = deploying untested code. It's a violation of quality standards.
+**Classification:**
+- [ ] Named behavior and affected decision are explicit
+- [ ] Lowest sufficient tier is selected
+- [ ] Targeted/Full approval and scenario list, model, run count, time limit, and cost limit are recorded when applicable
+- [ ] Stop condition and out-of-scope items are explicit
 
-## Skill Creation Checklist (TDD Adapted)
+**RED:**
+- [ ] Tier-appropriate proof fails for the expected reason
+- [ ] Failure is behavior/contract evidence, not harness noise
 
-**IMPORTANT: Create a todo for EACH checklist item below.**
+**GREEN:**
+- [ ] Minimal guidance addresses the observed failure
+- [ ] The same bounded proof passes or the failure is reported honestly
 
-**RED Phase - Write Failing Test:**
-- [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
-- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim
-- [ ] Identify patterns in rationalizations/failures
-
-**GREEN Phase - Write Minimal Skill:**
-- [ ] Name uses only letters, numbers, hyphens (no parentheses/special chars)
-- [ ] YAML frontmatter with required `name` and `description` fields (max 1024 chars; see [spec](https://agentskills.io/specification))
-- [ ] Description starts with "Use when..." and includes specific triggers/symptoms
-- [ ] Description written in third person
-- [ ] Keywords throughout for search (errors, symptoms, tools)
-- [ ] Clear overview with core principle
-- [ ] Address specific baseline failures identified in RED
-- [ ] Guidance form matches the failure type (see Match the Form to the Failure)
-- [ ] For behavior-shaping guidance: wording micro-tested against a no-guidance control (5+ reps, every flagged match read manually) — N/A for pure reference skills
-- [ ] Code inline OR link to separate file
-- [ ] One excellent example (not multi-language)
-- [ ] Run scenarios WITH skill - verify agents now comply
-
-**REFACTOR Phase - Close Loopholes:**
-- [ ] Identify NEW rationalizations from testing
-- [ ] Add explicit counters (if discipline skill)
-- [ ] Build rationalization table from all test iterations
-- [ ] Create red flags list
-- [ ] Re-test until bulletproof
-
-**Quality Checks:**
-- [ ] Small flowchart only if decision non-obvious
-- [ ] Quick reference table
-- [ ] Common mistakes section
-- [ ] No narrative storytelling
-- [ ] Supporting files only for tools or heavy reference
+**Quality:**
+- [ ] Frontmatter remains valid and describes only when to use the skill
+- [ ] Guidance form matches the failure type
+- [ ] No unrelated refactor, second skill, broad suite, or extra model sample was added
 
 **Deployment:**
-- [ ] Commit skill to git and push to your fork (if configured)
-- [ ] Consider contributing back via PR (if broadly useful)
+- [ ] Deterministic local checks and `git diff --check` pass
+- [ ] Selected-tier evidence is summarized accurately
+- [ ] Commit and push only when requested
 
 ## Discovery Workflow
 

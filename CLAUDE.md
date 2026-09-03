@@ -94,18 +94,29 @@ If you are not sure whether your integration loads the bootstrap at session star
 
 Skills are not prose — behavior-changing instructions are code that shapes agent
 behavior. Changes to discovery, routing, required process, authority,
-escalation, or agent behavior require all of the following:
+escalation, or agent behavior use `superpowers:writing-skills` and select the
+lowest validation tier that proves the named claim.
 
-- Use `superpowers:writing-skills` to develop and test changes
-- Run adversarial pressure testing across multiple sessions
-- Show before/after eval results in your PR
-- Do not modify carefully-tuned content (Red Flags tables, rationalization lists, "human partner" language) without evidence the change is an improvement
+**Validation is risk-tiered:**
+
+- **Focused is the default.** Use one failing local assertion, the smallest skill
+  edit, and the matching local proof.
+- **Targeted Behavior requires explicit approval.** Fix its scenario list, model,
+  run count, time limit, and cost limit before any LLM session.
+- **Full Pressure requires explicit approval.** Reserve it for new skills,
+  security/permission or irreversible-action discipline, broad routing changes,
+  or a Targeted result that directly proves pressure/variance is the remaining
+  risk.
+
+Long LLM evaluations require explicit approval; never make them CI or default
+verification. A failed tier is reported at that tier and never automatically
+escalates. Show before/after model-eval results in a PR only when Targeted
+Behavior or Full Pressure was explicitly selected. Do not modify carefully-tuned
+content without evidence proportional to the selected tier.
 
 A change confined to tests, fixtures, test runners, generated/meta artifacts, or
 format-only human documentation receives focused local verification instead.
 When unsure whether wording changes behavior, treat it as behavior-changing.
-Long LLM evaluations are explicit opt-in work; never make them CI or default
-verification.
 
 ## Eval harness
 
