@@ -1,25 +1,45 @@
 ---
 name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use when a human partner explicitly requests an independent review of a named Git range, or an explicitly selected SDD workflow requires its task-review process
 ---
 
 # Requesting Code Review
 
-Dispatch a code reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history.
+Dispatch an independent reviewer only when your human partner explicitly asks for one. The reviewer gets precisely crafted context for one finite evidence pass — never your session's history.
 
-**Core principle:** Review early, review often.
+**Core principle:** Review the named decision, then stop.
 
 ## When to Request Review
 
-**Mandatory:**
-- After each task in subagent-driven development
-- After completing major feature
-- Before merge to main
+**Inside explicitly selected subagent-driven-development:**
+- After each task, as required by that workflow
 
-**Optional but valuable:**
-- When stuck (fresh perspective)
-- Before refactoring (baseline check)
-- After fixing complex bug
+**Standalone:**
+- When your human partner explicitly requests an independent review of a named range
+- When your human partner explicitly requests review as a merge gate
+
+Do not dispatch a standalone reviewer automatically after completing work,
+before refactoring, when stuck, or because review might be valuable. Report the
+available evidence inline unless an independent review was explicitly requested.
+
+## Standalone Review
+
+A standalone review is one finite pass over a named Git range and stated
+requirements. It ends with its evidence report; it does not automatically
+authorize remediation, another reviewer, a worktree, a plan,
+subagent-driven-development, a broad suite, or model E2E.
+
+Classify each concern in that report as one of:
+- **Blocking:** a direct mismatch with a stated requirement, or verified broken
+  behavior, security, data loss, or named contract risk.
+- **Unknown — nonblocking:** the concern cannot be established from the range
+  plus a justified direct boundary; include missing evidence and the next
+  cheapest verification.
+- **Deferred:** a minor improvement outside the requested scope.
+
+Remediation and any re-review require a new explicit, scoped request from your
+human partner. An explicitly selected SDD workflow uses its own scoped, capped
+review loop instead.
 
 ## How to Request
 
@@ -45,18 +65,18 @@ Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md
 - `{BASE_SHA}` - Starting commit
 - `{HEAD_SHA}` - Ending commit
 
-**3. Act on feedback:**
-- Fix Critical issues immediately
-- Fix Important issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
+**3. Report the evidence:**
+- State Blocking findings with the direct requirement, diff, or named boundary evidence.
+- State Unknown — nonblocking items with their next cheapest verification.
+- State Deferred items without turning them into a remediation agenda.
+- End the standalone review. Apply remediation only under a new explicit, scoped request.
 
 ## Example
 
 ```
-[Just completed Task 2: Add verification function]
+Human: Please commission an independent review of Task 2 before merge.
 
-You: Let me request code review before proceeding.
+You: Dispatching one named-range review.
 
 BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
 HEAD_SHA=$(git rev-parse HEAD)
@@ -69,20 +89,20 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 [Subagent returns]:
   Strengths: Clean architecture, real tests
-  Issues:
-    Important: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
+  Blocking:
+    Important: Missing progress indicators — requirement: report every 100 items
+  Deferred: Magic number (100) is outside this named review request
+  Assessment: Ready to merge? No
 
-You: [Fix progress indicators]
-[Continue to Task 3]
+You: [Report the direct requirement failure and stop the standalone review]
+[Await a separately scoped remediation request]
 ```
 
 ## Common Rationalizations
 
 | Excuse | Reality |
 |--------|---------|
-| "I'll just review the diff myself instead of dispatching a reviewer" | You're the coordinator — reviewing the diff inline burns the context window you need to keep driving the work. Dispatch a reviewer subagent: the diff and the evaluation live in its context, and only the findings come back to you. |
+| "I'll just review the diff myself instead of dispatching a reviewer" | When your human partner explicitly requested an independent review, dispatch the one named-range reviewer. Otherwise report the bounded evidence inline. |
 | "The reviewer needs my whole session history to understand the change" | Hand it precisely crafted context, never your session's history. That keeps the reviewer on the work product, not your thought process. |
 
 ## Red Flags

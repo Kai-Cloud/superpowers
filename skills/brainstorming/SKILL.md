@@ -11,12 +11,21 @@ Start by classifying how much process the request needs, then work
 through your path: understand the context, refine the idea, present a
 design, and get your human partner's approval.
 
+## Not Design Work
+
+A named-range review, explicit read-only investigation, audit, explanation, or
+known local correction confined to tests, fixtures, assertions, harnesses,
+metadata, or non-behavioral documentation is not design work. End it in an
+evidence report or focused proof; do not classify it as spike, bounded, or
+architectural merely because it could grow. If the correction changes production
+behavior or its behavioral effect is unknown, this exclusion does not apply.
+
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any
 project, or take any implementation action until you have told your
 human partner what you intend and they have approved it. This applies
-to EVERY task on EVERY path below — the ceremony scales with the task;
-the approval gate never does.
+to EVERY behavior-changing task on EVERY path below — the ceremony
+scales with the task; the approval gate never does.
 </HARD-GATE>
 
 ## Three Paths
@@ -70,12 +79,11 @@ just because it was selected first.
 
 ## Anti-Pattern: "Too Simple To Need Approval"
 
-Every path ends with your human partner approving your intent before
-implementation. A todo list, a single-function utility, a config
-change — the design may be two sentences in chat, but you MUST present
-it and get approval. "Simple" tasks are where unexamined assumptions
-cause the most wasted work. What scales with simplicity is the
-artifact, never the approval.
+Every behavior-changing path ends with your human partner approving your
+intent before implementation. A todo list, a single-function utility, a config
+change — the design may be two sentences in chat, but you MUST present it and
+get approval. "Simple" tasks are where unexamined assumptions cause the most
+wasted work. What scales with simplicity is the artifact, never the approval.
 
 ## Red Flags
 

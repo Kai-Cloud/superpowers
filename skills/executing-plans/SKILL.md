@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+description: Use when a human partner explicitly selects inline execution of a named, approved multi-task implementation plan
 ---
 
 # Executing Plans
@@ -11,7 +11,11 @@ Load plan, review critically, execute all tasks, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-**Note:** Tell your human partner that Superpowers works much better with access to subagents (Claude Code, Codex CLI, Codex App, Copilot CLI, and Gemini CLI all qualify; see the per-platform tool refs in `../using-superpowers/references/`). If subagents are available, use superpowers:subagent-driven-development instead of this skill.
+## Eligibility
+
+Use this skill only when a named, approved, multi-task implementation plan exists and your human partner explicitly selected inline execution. A plan file, available subagents, or a request that could become implementation is not enough. If either condition is missing, report or finish the plan; do not create a worktree, dispatch workers, or begin task execution.
+
+**Note:** Subagent-driven development can be appropriate for independent tasks only when your human partner explicitly selects subagent-driven-development. Subagent availability never substitutes for that selection.
 
 ## The Process
 

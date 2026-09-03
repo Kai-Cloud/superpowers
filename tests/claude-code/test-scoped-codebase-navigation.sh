@@ -33,6 +33,20 @@ assert_contains() {
     fi
 }
 
+assert_not_contains() {
+    local file="$1"
+    local pattern="$2"
+    local label="$3"
+    if grep -Fq "$pattern" "$file"; then
+        echo "  [FAIL] $label"
+        echo "    Unexpected: $pattern"
+        echo "    In: $file"
+        failures=$((failures + 1))
+    else
+        echo "  [PASS] $label"
+    fi
+}
+
 NAVIGATION="$REPO_ROOT/skills/codebase-navigation/SKILL.md"
 ROUTER="$REPO_ROOT/skills/using-superpowers/SKILL.md"
 BRAINSTORMING="$REPO_ROOT/skills/brainstorming/SKILL.md"
@@ -46,6 +60,10 @@ PLANS="$REPO_ROOT/skills/writing-plans/SKILL.md"
 FINISHING="$REPO_ROOT/skills/finishing-a-development-branch/SKILL.md"
 EXECUTING="$REPO_ROOT/skills/executing-plans/SKILL.md"
 SDD="$REPO_ROOT/skills/subagent-driven-development/SKILL.md"
+TDD="$REPO_ROOT/skills/test-driven-development/SKILL.md"
+WRITING_SKILLS="$REPO_ROOT/skills/writing-skills/SKILL.md"
+REQUESTING_REVIEW="$REPO_ROOT/skills/requesting-code-review/SKILL.md"
+ROOT_INSTRUCTIONS="$REPO_ROOT/CLAUDE.md"
 RUNNER="$REPO_ROOT/tests/claude-code/run-skill-tests.sh"
 
 echo "=== Scoped Codebase Navigation Test ==="
@@ -93,6 +111,31 @@ assert_contains "$EXECUTING" "Unknown" "inline plan execution preserves explicit
 assert_contains "$SDD" "codebase-navigation" "SDD points large-repository tasks to navigation"
 assert_contains "$SDD" "Do not let an implementer rediscover the whole repository" "SDD preserves task-scoped context"
 assert_contains "$SDD" "continuous execution never authorizes adding unrelated tasks" "SDD continuation cannot widen scope"
+
+# Convergence-first policy: read-only work and known local non-production
+# corrections must not silently turn into a delivery workflow.
+assert_contains "$ROUTER" "Non-escalating work is not an implementation-plan workflow." "router defines a non-escalating work path"
+assert_contains "$ROUTER" "explicitly selects that escalation" "router requires explicit escalation selection"
+assert_contains "$BRAINSTORMING" "## Not Design Work" "brainstorming excludes evidence-only work"
+assert_contains "$TDD" "description: Use when implementing a production feature" "TDD discovery targets production behavior changes"
+assert_contains "$TDD" "## Test-Only Corrections" "TDD scopes test-only corrections to focused proof"
+assert_contains "$WRITING_SKILLS" "## Behavior-Shaping Changes" "writing-skills distinguishes behavior-shaping edits"
+assert_contains "$ROOT_INSTRUCTIONS" "Behavior-Changing Skill Edits Require Evaluation" "root instructions scope behavior evaluation"
+assert_contains "$PLANS" "A plan is not authorization to execute." "plan documentation does not authorize execution"
+assert_contains "$EXECUTING" "description: Use when a human partner explicitly selects inline execution" "inline execution discovery requires explicit selection"
+assert_contains "$EXECUTING" "## Eligibility" "inline execution has an eligibility gate"
+assert_contains "$EXECUTING" "explicitly selected inline execution" "inline execution requires explicit selection"
+assert_contains "$SDD" "description: Use when a human partner explicitly selects subagent-driven-development" "SDD discovery requires explicit selection"
+assert_contains "$SDD" "## Eligibility" "SDD has an eligibility gate"
+assert_contains "$SDD" "explicitly selected subagent-driven-development" "SDD requires explicit selection"
+assert_contains "$WORKTREES" "description: Use when a human partner explicitly requests an isolated workspace" "worktree discovery requires explicit consent"
+assert_contains "$WORKTREES" "A plan or subagent availability is not consent to create a worktree." "worktree consent stays separate from planning"
+assert_contains "$REQUESTING_REVIEW" "## Standalone Review" "standalone reviews have a finite path"
+assert_contains "$REQUESTING_REVIEW" "your human partner explicitly requests an independent review" "standalone reviewer dispatch requires explicit request"
+assert_contains "$REQUESTING_REVIEW" "ends with its evidence report" "standalone review does not auto-authorize remediation"
+assert_contains "$FINAL_REVIEW" "Unknown — nonblocking" "reviewer labels unverified concerns nonblocking"
+assert_not_contains "$FINAL_REVIEW" "git worktree add" "standalone reviewer cannot create a worktree"
+assert_contains "$RUNNER" "RUN_INTEGRATION=false" "model integrations remain opt-in by default"
 
 assert_contains "$RUNNER" "test-scoped-codebase-navigation.sh" "main runner includes scoped navigation regression test"
 assert_contains "$RUNNER" "test-scoped-codebase-navigation-integration.sh" "integration runner includes navigation behavior test"

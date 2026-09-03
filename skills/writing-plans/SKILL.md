@@ -13,6 +13,8 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
+**Execution boundary:** A plan is not authorization to execute. After your human partner approves this named multi-task plan, they explicitly select either inline execution or subagent-driven development. Until then, finish and report the plan; do not create a worktree, dispatch workers, or begin implementation.
+
 **Context:** If working in an isolated worktree, it should have been created via the `superpowers:using-git-worktrees` skill at execution time.
 
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
@@ -70,7 +72,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execution is separate authorization. Use superpowers:subagent-driven-development or superpowers:executing-plans only after your human partner approves this named multi-task plan and explicitly selects that execution mode. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 

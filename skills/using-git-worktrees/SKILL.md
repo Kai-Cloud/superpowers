@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback
+description: Use when a human partner explicitly requests an isolated workspace, or after selecting an execution workflow that requires one
 ---
 
 # Using Git Worktrees
@@ -12,6 +12,8 @@ Ensure work happens in an isolated workspace. Prefer your platform's native work
 **Core principle:** Detect existing isolation first. Then use native tools. Then fall back to git. Never fight the harness.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
+
+A plan or subagent availability is not consent to create a worktree. Create one only when your human partner explicitly requests isolation or has already selected an execution workflow that requires it. Otherwise leave the checkout in place.
 
 ## Step 0: Detect Existing Isolation
 

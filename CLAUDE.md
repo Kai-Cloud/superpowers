@@ -90,14 +90,22 @@ A working integration auto-triggers the `brainstorming` skill before any code is
 
 If you are not sure whether your integration loads the bootstrap at session start, it does not.
 
-## Skill Changes Require Evaluation
+## Behavior-Changing Skill Edits Require Evaluation
 
-Skills are not prose — they are code that shapes agent behavior. If you modify skill content:
+Skills are not prose — behavior-changing instructions are code that shapes agent
+behavior. Changes to discovery, routing, required process, authority,
+escalation, or agent behavior require all of the following:
 
 - Use `superpowers:writing-skills` to develop and test changes
 - Run adversarial pressure testing across multiple sessions
 - Show before/after eval results in your PR
 - Do not modify carefully-tuned content (Red Flags tables, rationalization lists, "human partner" language) without evidence the change is an improvement
+
+A change confined to tests, fixtures, test runners, generated/meta artifacts, or
+format-only human documentation receives focused local verification instead.
+When unsure whether wording changes behavior, treat it as behavior-changing.
+Long LLM evaluations are explicit opt-in work; never make them CI or default
+verification.
 
 ## Eval harness
 

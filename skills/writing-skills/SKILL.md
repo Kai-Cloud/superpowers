@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
+description: Use when creating a new skill or making a behavior-shaping change to an existing skill, before deployment
 ---
 
 # Writing Skills
@@ -18,6 +18,17 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 **REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
 
 **Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
+
+## Behavior-Shaping Changes
+
+Use this workflow when creating a skill or changing discovery, routing, required
+process, authority, escalation, or other agent behavior. Full skill
+RED-GREEN-REFACTOR is required for those behavior-shaping changes.
+
+Do not invoke this workflow for read-only review, a test/fixture/harness or
+test-runner correction, generated/meta artifacts, or format-only human
+documentation. Use focused local proof for that non-behavioral work. If a
+wording change may alter behavior, treat it as behavior-shaping.
 
 ## What is a Skill?
 
@@ -374,18 +385,18 @@ When: Reference material too large for inline
 ## The Iron Law (Same as TDD)
 
 ```
-NO SKILL WITHOUT A FAILING TEST FIRST
+NO BEHAVIOR-SHAPING SKILL CHANGE WITHOUT A FAILING TEST FIRST
 ```
 
-This applies to NEW skills AND EDITS to existing skills.
+This applies to NEW skills and behavior-shaping edits to existing skills.
 
 Write skill before testing? Delete it. Start over.
 Edit skill without testing? Same violation.
 
-**No exceptions:**
+**No exceptions for behavior-shaping edits:**
 - Not for "simple additions"
 - Not for "just adding a section"
-- Not for "documentation updates"
+- Not for behavior-shaping documentation updates
 - Don't keep untested changes as "reference"
 - Don't "adapt" while running tests
 - Delete means delete
@@ -454,7 +465,7 @@ Different skill types need different test approaches:
 | "Academic review is enough" | Reading ≠ using. Test application scenarios. |
 | "No time to test" | Deploying untested skill wastes more time fixing it later. |
 
-**All of these mean: Test before deploying. No exceptions.**
+**All of these behavior-shaping cases mean: Test before deploying. No exceptions.**
 
 ## Match the Form to the Failure
 
@@ -613,7 +624,7 @@ helper1, helper2, step3, pattern4
 
 ## STOP: Before Moving to Next Skill
 
-**After writing ANY skill, you MUST STOP and complete the deployment process.**
+**After writing a new or behavior-shaping skill change, you MUST STOP and complete the deployment process.**
 
 **Do NOT:**
 - Create multiple skills in batch without testing each

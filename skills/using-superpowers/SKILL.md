@@ -22,6 +22,27 @@ they might help. A task needs a bounded path, not every process in the library.
 substantive action they govern.** A pure explanation, a known local edit, or a
 single targeted inspection does not automatically require a process ceremony.
 
+## Non-Escalating Work
+
+A named Git-range review, explicit read-only investigation, audit, explanation,
+or known local correction limited to tests, fixtures, assertions, harnesses,
+metadata, or non-behavioral documentation is non-escalating work. It ends in an
+evidence report or focused proof, not an implementation project.
+
+**Non-escalating work is not an implementation-plan workflow.** Do not invoke
+brainstorming, writing-skills, test-driven-development, writing-plans,
+using-git-worktrees, executing-plans, subagent-driven-development, reviewer
+dispatches, broad suites, or model E2E merely because the task might grow.
+Escalate only when current evidence shows a production behavior, public
+contract, discovery/routing, authority, or process change; enter that workflow
+only after your human partner explicitly selects that escalation. If the class
+is unclear, record `Unknown` and the next cheapest verification instead of
+assuming the heavier path.
+
+For a named Git-range review, inspect the range and report inline. Dispatch an
+independent reviewer only when your human partner explicitly asks for one or an
+explicitly selected SDD workflow requires it.
+
 **Before entering plan mode:** invoke brainstorming only when design work is
 actually needed. In a large or unfamiliar existing repository whose relevant
 path is not yet known, invoke `superpowers:codebase-navigation` first to establish that

@@ -1,9 +1,13 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session
+description: Use when a human partner explicitly selects subagent-driven-development for a named, approved multi-task plan with independent tasks
 ---
 
 # Subagent-Driven Development
+
+## Eligibility
+
+Use this skill only when a named, approved, multi-task implementation plan exists and your human partner explicitly selected subagent-driven-development. A plan file, available subagents, or a request that could become implementation is not enough. If either condition is missing, stop at the report or plan; do not create a worktree, ledger, brief, review package, or worker dispatch.
 
 Execute plan by dispatching a fresh implementer subagent per task, a task review (spec compliance + code quality) after each, and a broad whole-branch review at the end.
 

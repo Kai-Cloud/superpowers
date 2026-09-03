@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when implementing a production feature, bugfix, refactor, interface, or behavior change, before writing production code
 ---
 
 # Test-Driven Development (TDD)
@@ -27,6 +27,15 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Configuration files
 
 Thinking "skip TDD just this once"? Stop. That's rationalization.
+
+## Test-Only Corrections
+
+A correction confined to an existing test fixture, assertion, runner, or harness
+with no intended production behavior change is not a production-code TDD cycle.
+Use focused proof instead: name the existing contract, change only the test-side
+asset, run the smallest relevant check, and confirm no production files changed.
+If that proof exposes a production defect or the behavioral effect is unknown,
+return to normal TDD for the production change.
 
 ## The Iron Law
 
