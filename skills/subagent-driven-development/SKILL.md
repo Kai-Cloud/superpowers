@@ -191,7 +191,8 @@ harness choose a provider-compatible route.
 All SDD workers are foreground calls: include `run_in_background: false` in
 implementer, reviewer, and re-reviewer dispatches. The controller waits for
 the result directly and must not replace that wait with ScheduleWakeup or
-polling loops.
+polling loops. Reviewers are read-only task gates: they do not invoke Skill,
+spawn agents, or run broad review workflows inside the review.
 
 Use the task's complexity guidance to shape the prompt and review depth, not
 to override the model: mechanical tasks stay narrowly scoped, integration

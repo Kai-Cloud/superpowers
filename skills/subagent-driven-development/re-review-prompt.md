@@ -16,6 +16,10 @@ Subagent (general-purpose):
     findings; an implementer has attempted to fix them. Your job is to
     verdict each finding and inspect the fix diff — nothing else.
 
+    ## Dispatch Boundary
+
+    This is a read-only scoped re-review. Do not use the Skill tool for this review, do not dispatch nested agents, and do not run broad review workflows. Inspect only the listed findings and fix diff, then return the required verdict.
+
     ## The Task
 
     Read the task brief: [BRIEF_FILE]

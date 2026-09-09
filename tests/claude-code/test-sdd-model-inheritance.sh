@@ -18,6 +18,11 @@ for template in implementer-prompt.md task-reviewer-prompt.md re-review-prompt.m
     grep -q 'run_in_background: false' "$path" || fail "$template is not foreground"
 done
 
+grep -q 'Do not use the Skill tool for this review' "$SDD_DIR/task-reviewer-prompt.md" \
+    || fail "task reviewer still permits nested review skills"
+grep -q 'Do not use the Skill tool for this review' "$SDD_DIR/re-review-prompt.md" \
+    || fail "re-reviewer still permits nested review skills"
+
 grep -q 'parent session owns model selection' "$SDD_DIR/SKILL.md" \
     || fail "SKILL.md does not require parent-model inheritance"
 ! grep -q 'Always specify the model explicitly' "$SDD_DIR/SKILL.md" \

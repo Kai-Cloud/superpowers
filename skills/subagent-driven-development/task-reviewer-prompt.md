@@ -17,6 +17,10 @@ Subagent (general-purpose):
     not a merge review — a broad whole-branch review happens separately after
     all tasks are complete.
 
+    ## Dispatch Boundary
+
+    This is a read-only task-scoped review. Do not use the Skill tool for this review, do not dispatch nested agents, and do not run broad review workflows. Inspect the supplied brief, report, and diff, then return the required verdict.
+
     ## What Was Requested
 
     Read the task brief: [BRIEF_FILE]
