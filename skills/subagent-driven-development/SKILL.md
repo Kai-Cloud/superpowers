@@ -183,27 +183,20 @@ implementation.
 
 ## Model Selection
 
-Use the least powerful model that can handle each role to conserve cost and increase speed.
+The parent session owns model selection. Every implementer, reviewer, and
+re-reviewer inherits the parent model; do not include a `model` parameter in
+any subagent dispatch. This keeps one workflow on one model lane and lets the
+harness choose a provider-compatible route.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+Use the task's complexity guidance to shape the prompt and review depth, not
+to override the model: mechanical tasks stay narrowly scoped, integration
+tasks get their named interfaces and risks, and architecture/review tasks get
+more explicit context and verification. Fix-loop escalation changes the
+review instructions and evidence required, never the subagent model.
 
-**Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
-
-**Architecture and design tasks**: use the most capable available model.
-The final whole-branch review is one of these — dispatch it on the most
-capable available model, not the session default.
-
-**Review tasks**: choose the model with the same judgment, scaled to the
-diff's size, complexity, and risk. A small mechanical diff does not need the
-most capable model; a subtle concurrency change does. Scoped re-reviews of
-small fix diffs take a cheap-to-mid tier.
-
-**Fix-loop escalation (rounds 4-5)**: use a model at least one tier above
-the implementer that got stuck.
-
-**Always specify the model explicitly when dispatching a subagent.** An
-omitted model inherits your session's model — often the most capable and
-most expensive — which silently defeats this section.
+Explicit model overrides are forbidden in this fork. They can route nested
+calls to unavailable models or split one benchmark across different model
+lanes, which is especially harmful when the parent uses a fixed gateway route.
 
 **Turn count beats token price.** Wall-clock and context cost scale with how
 many turns a subagent takes, and the cheapest models routinely take 2-3× the

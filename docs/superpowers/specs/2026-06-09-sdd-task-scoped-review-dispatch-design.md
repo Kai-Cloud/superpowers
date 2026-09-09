@@ -84,10 +84,12 @@ sessions (full log with negative results:
 `evals/docs/experiments/2026-06-10-sdd-cost-experiments.md`) produced the
 final config:
 
-- **Adopted:** final-review package (final reviewer 33→6 turns at
-  controller-model prices); REQUIRED `model:` line in both templates
-  (prose guidance decayed mid-session once, inheriting opus for 17
-  dispatches, +$5); task-brief + report files (`scripts/task-brief`;
+- **Adopted upstream:** final-review package (final reviewer 33→6 turns at
+  controller-model prices); the upstream templates required an explicit
+  `model:` line to control per-role cost. The 6.3.3 fork intentionally
+  replaces that policy with parent-model inheritance so nested dispatches stay
+  on the harness-selected provider route; task-brief + report files
+  (`scripts/task-brief`;
   fidelity anchor, modest context savings); progress ledger in
   `<git-dir>/sdd/progress.md` (real sessions re-dispatched entire
   completed task sequences after compaction — 269 dispatches for ~22

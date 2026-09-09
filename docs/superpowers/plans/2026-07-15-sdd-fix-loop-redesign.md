@@ -22,7 +22,7 @@
   - `Task <N>: parked — <finding one-liner> — ruling: <one-liner>`
   - `Task <N>: BLOCKED — <one-liner>`
   - Resume rule: a task is DONE iff it has a `Task <N>: complete` line.
-- **Template placeholders** keep the existing bracket convention: `[MODEL]`, `[BRIEF_FILE]`, `[REPORT_FILE]`, `[BASE_SHA]`, `[HEAD_SHA]`, `[DIFF_FILE]`, `[GLOBAL_CONSTRAINTS]`; the new re-review template adds `[FINDINGS]`, `[FIX_BASE_SHA]`.
+- **Template placeholders** keep the existing bracket convention: `[BRIEF_FILE]`, `[REPORT_FILE]`, `[BASE_SHA]`, `[HEAD_SHA]`, `[DIFF_FILE]`, `[GLOBAL_CONSTRAINTS]`; the fork's re-review template adds `[FINDINGS]`, `[FIX_BASE_SHA]`. Model selection is inherited from the parent session and is not a template placeholder.
 - **Commit discipline:** superpowers commits on `sdd-fix-loop-redesign`; evals commits on `sdd-fix-loop-scenarios` (separate repo — `cd evals` first). Never commit one repo's work from the other.
 - **Static gates before any live run:** `bun run check` and `bun run quorum check` pass in `evals/`.
 - **Live runs are trusted-maintainer operations** — they need `SUPERPOWERS_ROOT`, an `ANTHROPIC_API_KEY`, and cost real money (~$3–15 per SDD run). Task 8 marks them explicitly.
@@ -71,8 +71,6 @@ that the fix itself broke nothing.
 ```
 Subagent (general-purpose):
   description: "Re-review Task N fix round R"
-  model: [MODEL — REQUIRED: choose per SKILL.md Model Selection; an omitted
-         model silently inherits the session's most expensive one]
   prompt: |
     You are re-reviewing one task's fix round. A previous review produced
     findings; an implementer has attempted to fix them. Your job is to
@@ -440,9 +438,9 @@ small fix diffs take a cheap-to-mid tier.
 **Fix-loop escalation (rounds 4-5)**: use a model at least one tier above
 the implementer that got stuck.
 
-**Always specify the model explicitly when dispatching a subagent.** An
-omitted model inherits your session's model — often the most capable and
-most expensive — which silently defeats this section.
+**Inherit the parent model when dispatching a subagent.** Do not include a
+`model` parameter in implementer or reviewer dispatches. The parent session's
+model is the authoritative runtime condition for this fork.
 
 **Turn count beats token price.** Wall-clock and context cost scale with how
 many turns a subagent takes, and the cheapest models routinely take 2-3× the
