@@ -192,7 +192,9 @@ All SDD workers are foreground calls: include `run_in_background: false` in
 implementer, reviewer, and re-reviewer dispatches. The controller waits for
 the result directly and must not replace that wait with ScheduleWakeup or
 polling loops. Reviewers are read-only task gates: they do not invoke Skill,
-spawn agents, or run broad review workflows inside the review.
+spawn agents, or run broad review workflows inside the review. The controller
+must provide the review brief, report, and diff directly; reviewers do not
+rediscover or redesign the workflow.
 
 Use the task's complexity guidance to shape the prompt and review depth, not
 to override the model: mechanical tasks stay narrowly scoped, integration

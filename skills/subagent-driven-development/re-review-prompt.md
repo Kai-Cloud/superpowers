@@ -18,7 +18,7 @@ Subagent (general-purpose):
 
     ## Dispatch Boundary
 
-    This is a read-only scoped re-review. Do not use the Skill tool for this review, do not dispatch nested agents, and do not run broad review workflows. Inspect only the listed findings and fix diff, then return the required verdict.
+    This is a read-only scoped re-review. Do not use the Skill tool or invoke any skill, do not dispatch nested agents or reviewers, and do not run broad review workflows. Inspect only the listed findings and fix diff, then return the required verdict. Do not load `using-superpowers`, `code-review`, `brainstorming`, or any other skill during this review.
 
     ## The Task
 
