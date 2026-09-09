@@ -5,6 +5,7 @@ Use this template when dispatching an implementer subagent.
 ```
 Subagent (general-purpose):
   description: "Implement Task N: [task name]"
+  run_in_background: false
   prompt: |
     You are implementing Task N: [task name]
 

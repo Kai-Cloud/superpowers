@@ -188,6 +188,11 @@ re-reviewer inherits the parent model; do not include a `model` parameter in
 any subagent dispatch. This keeps one workflow on one model lane and lets the
 harness choose a provider-compatible route.
 
+All SDD workers are foreground calls: include `run_in_background: false` in
+implementer, reviewer, and re-reviewer dispatches. The controller waits for
+the result directly and must not replace that wait with ScheduleWakeup or
+polling loops.
+
 Use the task's complexity guidance to shape the prompt and review depth, not
 to override the model: mechanical tasks stay narrowly scoped, integration
 tasks get their named interfaces and risks, and architecture/review tasks get

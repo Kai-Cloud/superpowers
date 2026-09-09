@@ -440,7 +440,9 @@ the implementer that got stuck.
 
 **Inherit the parent model when dispatching a subagent.** Do not include a
 `model` parameter in implementer or reviewer dispatches. The parent session's
-model is the authoritative runtime condition for this fork.
+model is the authoritative runtime condition for this fork. Every SDD worker
+also uses `run_in_background: false`; the controller waits directly for its
+result rather than polling.
 
 **Turn count beats token price.** Wall-clock and context cost scale with how
 many turns a subagent takes, and the cheapest models routinely take 2-3× the

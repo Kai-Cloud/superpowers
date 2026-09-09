@@ -15,6 +15,7 @@ for template in implementer-prompt.md task-reviewer-prompt.md re-review-prompt.m
     path="$SDD_DIR/$template"
     test -f "$path" || fail "missing $template"
     ! grep -q 'model:[[:space:]]*\[MODEL' "$path" || fail "$template still exposes a model placeholder"
+    grep -q 'run_in_background: false' "$path" || fail "$template is not foreground"
 done
 
 grep -q 'parent session owns model selection' "$SDD_DIR/SKILL.md" \
@@ -22,9 +23,9 @@ grep -q 'parent session owns model selection' "$SDD_DIR/SKILL.md" \
 ! grep -q 'Always specify the model explicitly' "$SDD_DIR/SKILL.md" \
     || fail "SKILL.md still requires explicit model selection"
 
-grep -q '"version": "6.3.3"' "$REPO_ROOT/package.json" \
-    || fail "package version is not 6.3.3"
-grep -q '"version": "6.3.3"' "$REPO_ROOT/.claude-plugin/plugin.json" \
-    || fail "Claude plugin version is not 6.3.3"
+grep -q '"version": "6.3.4"' "$REPO_ROOT/package.json" \
+    || fail "package version is not 6.3.4"
+grep -q '"version": "6.3.4"' "$REPO_ROOT/.claude-plugin/plugin.json" \
+    || fail "Claude plugin version is not 6.3.4"
 
 echo "[PASS] SDD dispatch templates inherit the parent model"
