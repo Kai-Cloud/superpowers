@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test: SDD dispatches inherit the parent session model in the fork variant.
+# Model-free source checks only; this does not prove effective child routing.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -28,9 +28,11 @@ grep -q 'parent session owns model selection' "$SDD_DIR/SKILL.md" \
 ! grep -q 'Always specify the model explicitly' "$SDD_DIR/SKILL.md" \
     || fail "SKILL.md still requires explicit model selection"
 
-grep -q '"version": "6.3.4"' "$REPO_ROOT/package.json" \
-    || fail "package version is not 6.3.4"
-grep -q '"version": "6.3.4"' "$REPO_ROOT/.claude-plugin/plugin.json" \
-    || fail "Claude plugin version is not 6.3.4"
+# Release consistency is tested independently by
+# tests/version-bump/test-version-registry.py; model behavior is release-agnostic.
 
-echo "[PASS] SDD dispatch templates inherit the parent model"
+# Include prose, diagrams, escalation/final routing, and harness boundaries.
+# No CLI/model calls: these assertions only detect contradictory source contracts.
+python "$SCRIPT_DIR/test-dispatch-contracts.py"
+
+printf '%s\n' '[PASS] Static dispatch contracts are consistent; runtime inheritance is unverified'

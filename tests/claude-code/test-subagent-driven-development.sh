@@ -12,9 +12,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/test-helpers.sh"
 
-CLAUDE_PROMPT_TIMEOUT="${CLAUDE_PROMPT_TIMEOUT:-90}"
+# This is paid description recall, not an offline unit test.
+require_model_tests
+export CLAUDE_PROMPT_TIMEOUT="${CLAUDE_PROMPT_TIMEOUT:-90}"
+export CLAUDE_MAX_CALLS="${CLAUDE_MAX_CALLS:-9}"
+export CLAUDE_MAX_BUDGET_USD="${CLAUDE_MAX_BUDGET_USD:-100}"
+export CLAUDE_OUTPUT_FORMAT="${CLAUDE_OUTPUT_FORMAT:-text}"
+if [ "$CLAUDE_OUTPUT_FORMAT" != text ]; then
+    printf 'ERROR: Description recall requires CLAUDE_OUTPUT_FORMAT=text.\n' >&2
+    exit 2
+fi
+# Never let a recall prompt modify the tested checkout.
+TEST_PROJECT=$(create_test_project)
+trap 'cleanup_test_project "$TEST_PROJECT"' EXIT
+cd "$TEST_PROJECT"
 
-echo "=== Test: subagent-driven-development skill ==="
+echo "=== Test: subagent-driven-development skill recall (9 calls maximum) ==="
 echo ""
 
 # Test 1: Verify skill can be loaded
@@ -129,22 +142,18 @@ fi
 
 echo ""
 
-# Test 7: Verify full task text is provided
+# Test 7: A complete task brief is not the controller's full plan.
 echo "Test 7: Task context provision..."
 
-output=$(run_claude "In subagent-driven-development, how does the controller provide task information to the implementer subagent? Answer using exactly this structure:
-Controller provides: <directly or by file>
-Implementer must read plan file: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
+output=$(run_claude "In subagent-driven-development, how does the controller provide complete task information to the implementer subagent? Distinguish the per-task brief from the full implementation plan. Answer using exactly this structure:
+Controller provides: <context and delivery method>
+Implementer reads task brief file: <yes or no>
+Implementer must read full plan file: <yes or no>" "$CLAUDE_PROMPT_TIMEOUT")
 
-if assert_contains "$output" "provide.*directly\|full.*text\|paste\|include.*prompt" "Provides text directly"; then
-    : # pass
+if assert_task_brief_contract "$output"; then
+    echo "  [PASS] Complete task context without requiring the full plan"
 else
-    exit 1
-fi
-
-if assert_contains "$output" "Implementer must read plan file:.*no" "Doesn't make subagent read file"; then
-    : # pass
-else
+    printf '  [FAIL] Expected a complete task brief or inline text, not a full-plan handoff.\n%s\n' "$output"
     exit 1
 fi
 

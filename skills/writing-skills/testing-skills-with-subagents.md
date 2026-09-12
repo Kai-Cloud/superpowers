@@ -1,16 +1,16 @@
 # Testing Skills With Subagents
 
-**Load this reference when:** creating or editing skills, before deployment, to verify they work under pressure and resist rationalization.
+**Load this reference when:** preparing explicitly authorized Targeted Behavior or Full Pressure evaluation under [writing-skills Validation Tiers](SKILL.md#validation-tiers). It supplies scenario methods, not authorization. All steps below stay within the coordinator's existing approved budget; workers do not launch nested validation.
 
 ## Overview
 
-**Testing skills is just TDD applied to process documentation.**
+**Testing skills is TDD applied to observed agent decisions.**
 
-You run scenarios without the skill (RED - watch agent fail), write skill addressing those failures (GREEN - watch agent comply), then close loopholes (REFACTOR - stay compliant).
+In approved scenarios, run without the skill or change (RED), then with the skill or change (GREEN). Record actual actions and rationalizations against the same acceptance criteria. A static contract repair can proceed with Focused evidence, but a claim about agent compliance needs these real before/after observations.
 
-**Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill prevents the right failures.
+**Core principle:** If the baseline does not exhibit the named behavior failure, report that result; do not invent a failure or expand the scenario set.
 
-**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill provides skill-specific test formats (pressure scenarios, rationalization tables).
+**REQUIRED BACKGROUND:** Understand superpowers:test-driven-development and the linked validation tiers. This reference provides pressure scenarios and rationalization analysis within those boundaries.
 
 **Complete worked example:** See examples/CLAUDE_MD_TESTING.md for a full test campaign testing CLAUDE.md documentation variants.
 
@@ -22,10 +22,9 @@ Test skills that:
 - Could be rationalized away ("just this once")
 - Contradict immediate goals (speed over quality)
 
-Don't test:
-- Pure reference skills (API docs, syntax guides)
-- Skills without rules to violate
-- Skills agents have no incentive to bypass
+Don't use a pressure campaign for pure reference lookup, a mechanical
+contract, or skills with no rule an agent is tempted to bypass. Select the
+proof that matches the claim rather than treating every edit as a campaign.
 
 ## TDD Mapping for Skill Testing
 
@@ -44,7 +43,9 @@ Same cycle as code TDD, different test format.
 
 **Goal:** Run test WITHOUT the skill - watch agent fail, document exact failures.
 
-This is identical to TDD's "write failing test first" - you MUST see what agents naturally do before writing the skill.
+For a behavioral fix, observe the baseline before changing the skill. A missing
+or inconclusive behavioral baseline is not proof of a violation; keep that
+claim NOT_VERIFIED.
 
 **Process:**
 
@@ -85,7 +86,8 @@ Write skill addressing the specific baseline failures you documented. Don't add 
 
 Run same scenarios WITH skill. Agent should now comply.
 
-If agent still fails: skill is unclear or incomplete. Revise and re-test.
+If the agent still fails, record the evidence and possible causes. Revision and
+retesting must fit the already-approved iterations; otherwise stop and report.
 
 ## VERIFY GREEN: Pressure Testing
 
@@ -181,15 +183,18 @@ For each new rationalization, add:
 
 ### 1. Explicit Negation in Rules
 
+Scope the rule to the actual failure. This example concerns newly written
+production code, not a test-only correction or correct pre-existing code.
+
 <Before>
 ```markdown
-Write code before test? Delete it.
+Write new production code before its failing test? Remove that untested change.
 ```
 </Before>
 
 <After>
 ```markdown
-Write code before test? Delete it. Start over.
+Write new production code before its failing test? Remove that untested change. Start over.
 
 **No exceptions:**
 - Don't keep it as "reference"
@@ -233,9 +238,11 @@ Agent should now:
 - Cite new sections
 - Acknowledge their previous rationalization was addressed
 
-**If agent finds NEW rationalization:** Continue REFACTOR cycle.
+**If the agent finds a new rationalization:** Record the failure. Retest only
+within a pre-approved iteration and remaining budget; otherwise report it.
 
-**If agent follows rule:** Success - skill is bulletproof for this scenario.
+**If the agent follows the rule:** The sampled scenario passed. This is not
+proof of universal compliance or permission to add samples.
 
 ## Meta-Testing (When GREEN Isn't Working)
 
@@ -264,20 +271,13 @@ it crystal clear that Option A was the only acceptable answer?
    - Make key points more prominent
    - Add foundational principle early
 
-## When Skill is Bulletproof
+## Interpreting Pressure Evidence
 
-**Signs of bulletproof skill:**
-
-1. **Agent chooses correct option** under maximum pressure
-2. **Agent cites skill sections** as justification
-3. **Agent acknowledges temptation** but follows rule anyway
-4. **Meta-testing reveals** "skill was clear, I should follow it"
-
-**Not bulletproof if:**
-- Agent finds new rationalizations
-- Agent argues skill is wrong
-- Agent creates "hybrid approaches"
-- Agent asks permission but argues strongly for violation
+Judge actual choices and tool actions against the frozen acceptance criteria.
+Citing the right rule is not compliance if the action violates it. Quoting a
+forbidden choice is not a violation when the agent rejects it. Record observed
+rationalizations and variance, and limit the conclusion to the sampled
+scenarios. No finite campaign establishes a universally bulletproof skill.
 
 ## Example: TDD Skill Bulletproofing
 
@@ -303,11 +303,12 @@ Cited: New principle directly
 Meta-test: "Skill was clear, I should follow it"
 ```
 
-**Bulletproof achieved.**
+**The reported scenario passed after revision.** This historical example is not
+a required iteration count or a guarantee about other scenarios.
 
 ## Testing Checklist (TDD for Skills)
 
-Before deploying skill, verify you followed RED-GREEN-REFACTOR:
+For the approved pressure campaign, record only applicable steps and results:
 
 **RED Phase:**
 - [ ] Created pressure scenarios (3+ combined pressures)
@@ -327,7 +328,7 @@ Before deploying skill, verify you followed RED-GREEN-REFACTOR:
 - [ ] Updated description with violation symptoms
 - [ ] Re-tested - agent still complies
 - [ ] Meta-tested to verify clarity
-- [ ] Agent follows rule under maximum pressure
+- [ ] Report actual compliance under the specified pressures, not universal success
 
 ## Common Mistakes (Same as TDD)
 
@@ -351,9 +352,10 @@ Agents resist single pressure, break under multiple.
 "Don't cheat" doesn't work. "Don't keep as reference" does.
 ✅ Fix: Add explicit negations for each specific rationalization.
 
-**❌ Stopping after first pass**
-Tests pass once ≠ bulletproof.
-✅ Fix: Continue REFACTOR cycle until no new rationalizations.
+**❌ Treating one pass as universal proof**
+A sampled pass does not establish universal compliance.
+✅ Fix: Report the planned samples, remaining uncertainty, and budget outcome;
+never add repetitions or continue refactoring beyond the approved campaign.
 
 ## Quick Reference (TDD Cycle)
 
@@ -368,11 +370,9 @@ Tests pass once ≠ bulletproof.
 
 ## The Bottom Line
 
-**Skill creation IS TDD. Same principles, same cycle, same benefits.**
-
-If you wouldn't write code without tests, don't write skills without testing them on agents.
-
-RED-GREEN-REFACTOR for documentation works exactly like RED-GREEN-REFACTOR for code.
+**A behavior claim needs observed behavior.** A Focused contract result is not
+an agent-compliance result. Use the selected proof, report its limits, and stop
+at the approved boundary.
 
 ## Real-World Impact
 

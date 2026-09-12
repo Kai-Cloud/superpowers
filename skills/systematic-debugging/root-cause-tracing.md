@@ -6,19 +6,31 @@ Bugs often manifest deep in the call stack (git init in wrong directory, file cr
 
 **Core principle:** Trace backward through the call chain until you find the original trigger, then fix at the source.
 
+## Trace Boundary
+
+Trace the observed bad value or state through its direct producer/caller chain
+to the first violated contract or original trigger. A long stack trace is not a
+reason to read every caller, sibling subsystem, or related directory.
+
+Name the symptom, candidate chain, invariant, focused test, and stop condition.
+Expand only if evidence on that chain implicates another named boundary. Stop
+when the source and focused proof are established. If a link is `Unknown`, name
+the next cheapest verification; when unavailable, stop with an explicit handoff
+rather than patching the symptom or continuing an unbounded search.
+
 ## When to Use
 
 ```dot
 digraph when_to_use {
     "Bug appears deep in stack?" [shape=diamond];
     "Can trace backwards?" [shape=diamond];
-    "Fix at symptom point" [shape=box];
+    "Unknown: next evidence or handoff" [shape=box];
     "Trace to original trigger" [shape=box];
     "BETTER: Also add defense-in-depth" [shape=box];
 
     "Bug appears deep in stack?" -> "Can trace backwards?" [label="yes"];
     "Can trace backwards?" -> "Trace to original trigger" [label="yes"];
-    "Can trace backwards?" -> "Fix at symptom point" [label="no - dead end"];
+    "Can trace backwards?" -> "Unknown: next evidence or handoff" [label="no - dead end"];
     "Trace to original trigger" -> "BETTER: Also add defense-in-depth";
 }
 ```
@@ -84,9 +96,13 @@ async function gitInit(directory: string) {
 
 **Critical:** Use `console.error()` in tests (not logger - may not show)
 
-**Run and capture:**
+**Run the focused test and capture its full result first:**
 ```bash
-npm test 2>&1 | grep 'DEBUG git init'
+status=0
+npm test -- path/to/reproducing.test.ts > /tmp/root-cause-trace.log 2>&1 || status=$?
+# Then inspect the diagnostic slice; filtering must not hide test failure.
+grep 'DEBUG git init' /tmp/root-cause-trace.log || true
+exit "$status"
 ```
 
 **Analyze stack traces:**
@@ -98,13 +114,15 @@ npm test 2>&1 | grep 'DEBUG git init'
 
 If something appears during tests but you don't know which test:
 
-Use the bisection script `find-polluter.sh` in this directory:
+Use the bisection script `find-polluter.sh` in this directory with a candidate
+set from the implicated path, not every test merely because it exists:
 
 ```bash
-./find-polluter.sh '.git' 'src/**/*.test.ts'
+./find-polluter.sh '.git' 'src/workspace/**/*.test.ts'
 ```
 
-Runs tests one-by-one, stops at first polluter. See script for usage.
+Runs tests one-by-one, stops at first polluter. Expand the candidate set only
+when evidence implicates another boundary. See script for usage.
 
 ## Real Example: Empty projectDir
 

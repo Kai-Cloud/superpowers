@@ -1,95 +1,82 @@
 ---
 name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use when a human partner explicitly requests an independent review of a named Git range, or an explicitly selected SDD workflow requires its task-review process
 ---
 
 # Requesting Code Review
 
-Dispatch a code reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history.
+Request an independent review for a named scope. The reviewer receives its
+requirements, evidence, and diff, not the coordinator's session history.
 
-**Core principle:** Review early, review often.
+## Entry Boundary
 
-## When to Request Review
+This skill is for the **coordinator**, not a dispatched reviewer. If you are
+already a reviewer, do not invoke Skill, dispatch nested agents, or restart a
+review workflow. Inspect the supplied evidence, return your report, and stop.
 
-**Mandatory:**
-- After each task in subagent-driven development
-- After completing major feature
-- Before merge to main
+- A named read-only audit or Git-range review is non-escalating work. Review
+  the range directly unless your human partner explicitly requested an
+  independent reviewer. Tool availability alone does not authorize dispatch.
+- An explicitly selected SDD implementation uses its required task review,
+  scoped re-review, and final-review gates. Reuse those seats; do not add a
+  second review of the same diff because it might be helpful.
+- A completed feature, an available plan, or an intent to merge is not by
+  itself authorization to start SDD or a new implementation workflow.
 
-**Optional but valuable:**
-- When stuck (fresh perspective)
-- Before refactoring (baseline check)
-- After fixing complex bug
+## Review Package and Dispatch
 
-## How to Request
+1. Identify the requested base/head and requirements. For an SDD task, use the
+   recorded pre-task base, not `HEAD~1` (a task may contain several commits).
+2. Pass the existing review package, brief, report, and relevant constraints.
+   Use SDD's task or re-review template for those gates; use
+   [code-reviewer.md](code-reviewer.md) for a requested independent range review
+   or the final whole-branch review. An unavailable package calls for the named
+   range's diff, not rediscovery of the whole project.
+3. Fill the template directly. Preserve the same effective parent model using
+   the harness's supported mechanism. Omitting `model` alone is not proof of
+   inheritance; unconfirmed routing stays unverified. Do not change global
+   model settings or substitute another model. SDD's Model Selection and
+   Dispatch section defines its complete adapter contract.
+4. On **Claude Code**, dispatch foreground with `run_in_background: false` and
+   wait for the blocking return. On an asynchronous adapter, use supported
+   completion events and bounded idle waits with a finite deadline; do not
+   short-poll, duplicate dispatch, or invent results. Do not copy Claude-only
+   fields to other harnesses.
+5. Every reviewer dispatch explicitly says: read-only; no Skill invocation
+   (including `requesting-code-review`); no nested agents/reviewers; no workflow
+   restart; no checkout, index, HEAD, branch, or worktree mutation. The reviewer
+   returns findings and stops. It does not run its own review process.
 
-**1. Get git SHAs:**
-```bash
-BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
-HEAD_SHA=$(git rev-parse HEAD)
+## Act Within the Existing Authorization
+
+**Standalone audit:** return the report and stop. Do not fix, edit, or start an
+implementation plan merely because the report contains Critical or Important
+findings. A finding is evidence, not permission. Offer the smallest proposed
+next step for your human partner to authorize separately.
+
+**Already-approved implementation:** corrections may proceed only inside that
+approved implementation scope. In SDD, the coordinator resumes the implementer
+and uses the existing scoped re-review, at most five repair rounds per task and
+one final fix wave. Reviewers never apply fixes. New scope needs new approval;
+Minor or out-of-scope observations go to the ledger rather than extending the
+loop. Address or explicitly adjudicate blocking findings before completion.
+
+## Example: Requested Independent Audit
+
+```text
+Human: Independently review base123..head456. Read-only; do not fix anything.
+Coordinator: Pass requirements and range package to one read-only reviewer.
+Reviewer: Return findings with file:line evidence and a verdict; no Skill/agents.
+Coordinator: Report the findings and stop. No fix dispatch follows this audit.
 ```
 
-**2. Dispatch code reviewer subagent:**
+## Common Mistakes
 
-Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md](code-reviewer.md)
+| Excuse | Boundary |
+|--------|----------|
+| "The reviewer should invoke requesting-code-review" | The coordinator fills the template; the child reviews evidence and stops. |
+| "Critical findings authorize immediate fixes" | Only already-approved implementation permits in-scope repairs; standalone audits stop at their report. |
+| "Another reviewer would increase confidence" | Reuse the required review seat and evidence; do not duplicate work. |
+| "The reviewer needs the whole session" | Give it the requirements, report, diff, and named risks, not accumulated history. |
 
-**Placeholders:**
-- `{DESCRIPTION}` - Brief summary of what you built
-- `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
-
-**3. Act on feedback:**
-- Fix Critical issues immediately
-- Fix Important issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
-
-## Example
-
-```
-[Just completed Task 2: Add verification function]
-
-You: Let me request code review before proceeding.
-
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
-HEAD_SHA=$(git rev-parse HEAD)
-
-[Dispatch code reviewer subagent]
-  DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
-  PLAN_OR_REQUIREMENTS: Task 2 from docs/superpowers/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
-
-[Subagent returns]:
-  Strengths: Clean architecture, real tests
-  Issues:
-    Important: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
-
-You: [Fix progress indicators]
-[Continue to Task 3]
-```
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "I'll just review the diff myself instead of dispatching a reviewer" | You're the coordinator — reviewing the diff inline burns the context window you need to keep driving the work. Dispatch a reviewer subagent: the diff and the evaluation live in its context, and only the findings come back to you. |
-| "The reviewer needs my whole session history to understand the change" | Hand it precisely crafted context, never your session's history. That keeps the reviewer on the work product, not your thought process. |
-
-## Red Flags
-
-**Never:**
-- Skip review because "it's simple"
-- Ignore Critical issues
-- Proceed with unfixed Important issues
-- Argue with valid technical feedback
-
-**If reviewer wrong:**
-- Push back with technical reasoning
-- Show code/tests that prove it works
-- Request clarification
-
-See template at: [code-reviewer.md](code-reviewer.md)
+See the final/range-review template at [code-reviewer.md](code-reviewer.md).

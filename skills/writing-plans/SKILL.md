@@ -7,7 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans within the named task boundary, assuming the engineer has no context for that path. This is not a requirement to understand or enumerate the whole repository. Document the files, contracts, code, focused testing, and relevant docs needed for each deliverable. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Commit only when authorized.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
@@ -20,7 +20,22 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+A plan is not authorization to execute. A read-only audit, explanation, or known
+local test/fixture/harness correction ends with its evidence report or focused
+proof; it does not need a new implementation-plan workflow. Use this skill for
+the requested multi-step implementation deliverable, preserving an already
+approved design and explicit scope.
+
+Use the known task path. If its entry, owner, or contract is unknown in an
+existing repository, use `superpowers:codebase-navigation` for a bounded task map.
+Record remaining `Unknown` facts and the next cheapest verification; do not fill
+gaps by inventing interfaces or reading the entire repository.
+
+If the spec covers multiple independent subsystems, suggest separate plans —
+one per independently testable subsystem. Expand only for an evidenced boundary;
+when new evidence reduces scope, narrow the plan rather than retaining ceremony.
+Branches, worktrees, preparation, and dependency installation need task-scoped
+user/project authorization, not merely a plan or a detected manifest.
 
 ## File Structure
 
@@ -42,6 +57,15 @@ deliverable needs them; split only where a reviewer could meaningfully
 reject one task while approving its neighbor. Each task ends with an
 independently testable deliverable.
 
+## Verification Scope
+
+Each task names the affected contract, focused command, and expected evidence.
+A full suite needs a named integration boundary, repository rule, or final
+delivery gate. Place that gate where its evidence is needed, not after every
+unrelated step. Reuse current proof for an unchanged tree and claim; rerun when
+relevant code, inputs, or the integration result changes. Report unrun/blocked
+checks accurately; a focused pass is not a whole-repository claim.
+
 ## Bite-Sized Task Granularity
 
 **Each step is one action (2-5 minutes):**
@@ -58,7 +82,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execute only after your human partner selects execution. Use superpowers:executing-plans for explicit inline execution, or superpowers:subagent-driven-development for explicit SDD. Preserve an already-selected mode; tool availability does not select it. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -152,7 +176,11 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan, if your human partner already selected an execution
+mode, honor that choice without re-selection. In particular, explicit inline
+execution stays inline even when subagents are available. If only plan writing
+was requested, report the plan and stop. Otherwise, offer the choice when no
+mode has been explicitly selected:
 
 **"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
 

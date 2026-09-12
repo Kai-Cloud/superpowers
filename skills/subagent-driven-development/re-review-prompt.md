@@ -4,10 +4,15 @@ Use this template when dispatching a re-review after a fix round. The
 re-reviewer verifies the findings were addressed and checks the fix diff for
 new breakage. It is not a fresh review — the full review already happened.
 
+The wrapper below is a **Claude Code** foreground example. The controller
+uses the same parent model under SDD's Model Selection and Dispatch contract;
+missing `model` is not runtime proof of inheritance. On other harnesses, use
+only supported dispatch fields and completion events.
+
 **Purpose:** Verify each finding from the previous review was addressed, and
 that the fix itself broke nothing.
 
-```
+```text
 Subagent (general-purpose):
   description: "Re-review Task N fix round R"
   run_in_background: false
@@ -18,7 +23,7 @@ Subagent (general-purpose):
 
     ## Dispatch Boundary
 
-    This is a read-only scoped re-review. Do not use the Skill tool or invoke any skill, do not dispatch nested agents or reviewers, and do not run broad review workflows. Inspect only the listed findings and fix diff, then return the required verdict. Do not load `using-superpowers`, `code-review`, `brainstorming`, or any other skill during this review.
+    This is a read-only scoped re-review. Do not use the Skill tool or invoke any skill, do not dispatch nested agents or reviewers, and do not run broad review workflows. Inspect only the listed findings and fix diff, then return the required verdict. Do not load `using-superpowers`, `requesting-code-review`, `code-review`, `brainstorming`, or any other skill during this review. The coordinator has already requested this re-review; return the report and stop.
 
     ## The Task
 
@@ -72,7 +77,8 @@ Subagent (general-purpose):
     and verify the claims against the diff. Do not re-run the suite to
     confirm their report. Run a test only when reading the code raises a
     specific doubt that no existing run answers — and then a focused test,
-    never a package-wide suite.
+    never a package-wide suite. Model-behavior tests belong to the controller's
+    separately budgeted validation task, not this re-review.
 
     ## Output Format
 
@@ -104,7 +110,7 @@ Subagent (general-purpose):
 ```
 
 **Placeholders:**
-- No model placeholder is used: the re-reviewer inherits the parent session's model.
+- No per-task model placeholder: the controller preserves and verifies the same parent model using the supported harness mechanism.
 - `[BRIEF_FILE]` — the task brief file (same file the implementer worked from)
 - `[FINDINGS]` — the Critical/Important findings and spec gaps from the
   previous review, copied verbatim, one per bullet

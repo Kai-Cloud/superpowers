@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: Use when starting a new project, or when a feature or behavior change has unresolved requirements, multiple valid approaches, or a cross-module design decision.
 ---
 
 # Brainstorming Ideas Into Designs
@@ -11,12 +11,22 @@ Start by classifying how much process the request needs, then work
 through your path: understand the context, refine the idea, present a
 design, and get your human partner's approval.
 
+## Not Design Work
+
+An audit, read-only investigation, explanation, or known local correction
+confined to tests, fixtures, assertions, harnesses, metadata, or non-behavioral
+documentation is not design work. End it with an evidence report or focused
+proof, not a spike/bounded/architectural project. If evidence shows the change
+alters production behavior, a public contract, routing, or authority, name that
+boundary and seek the needed design approval. If its effect is still unclear,
+record `Unknown` and the next cheapest verification rather than assuming a
+heavier path. Honor an explicit task scope and already-approved design.
+
 <HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any
-project, or take any implementation action until you have told your
-human partner what you intend and they have approved it. This applies
-to EVERY task on EVERY path below — the ceremony scales with the task;
-the approval gate never does.
+For behavior-changing design work, do NOT invoke an implementation skill, write
+production code, scaffold a project, or implement until you have told your human
+partner what you intend and they have approved it. This applies to EVERY design
+path below — the ceremony scales with the task; the approval gate never does.
 </HARD-GATE>
 
 ## Three Paths
@@ -47,9 +57,18 @@ override it:
   depend on. Follow the full process: questions, approaches, sectioned
   design, written spec, then the writing-plans skill.
 
-When in doubt between two paths, take the heavier one. The ratchet is
-one-way: hidden complexity discovered mid-task upgrades the path —
-stop, say so, and step up. Nothing downgrades mid-task.
+For an existing repository, use the known target flow and its direct evidence.
+If that path is unknown, use `superpowers:codebase-navigation` first to establish
+a bounded task map; do not inventory every repository file. A large or unfamiliar
+repository by itself is not an architectural change.
+
+Upgrade only when evidence shows a named boundary has changed: a new subsystem,
+public contract, shared-state owner, migration, or deployment/recovery constraint.
+State that evidence and the approval now needed before expanding. New evidence
+that resolves those concerns can downgrade the path to a narrower design or
+non-design task. Say what changed, preserve applicable approvals, and stop once
+the named questions are answered. Unresolved uncertainty stays `Unknown` with
+its next cheapest verification; it is not a one-way process ratchet.
 
 ## Anti-Pattern: "Too Simple To Need Approval"
 
@@ -65,11 +84,11 @@ artifact, never the approval.
 | Thought | Reality |
 |---------|---------|
 | "This is too simple to need a design" | Simple means a short design, not no design. Two sentences in chat, then approval. |
-| "I'll call it bounded and skip the spec" | Reaching for a label to skip work IS the doubt — take the heavier path. |
+| "I'll call it bounded and skip the spec" | Trace the existing flow and affected contracts; classify from evidence, not a convenient label. |
 | "It's bounded and the design is obvious — I'll start while they read it" | The gate is the approval, not the design's length. Present, then stop until you hear yes. |
 | "I understand this kind of app, so it's bounded" | Bounded measures the repo, not your familiarity. A new project has no existing flow — it is architectural. |
 | "The spike works, so I'll keep the code" | A spike's output is an answer. Keeping the code is a new request — classify it. |
-| "It grew, but I'm almost done — no need to re-classify" | Hidden complexity upgrades the path mid-task. Stop and say so. |
+| "It grew, but I'm almost done — no need to re-classify" | Name the changed boundary and evidence; re-classify and get any newly needed approval before expanding. |
 | "They approved the spike, so the follow-up change is approved too" | Each task gets its own classification and its own approval. |
 
 ## Checklist
@@ -85,14 +104,14 @@ your path and complete them in order.
 5. **Report findings** — a recommendation; label anything built as throwaway
 
 **Bounded:**
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore task context** — the target flow, direct consumers, relevant docs/tests and recent changes; navigate only if that path is unknown
 2. **Ask clarifying questions** — one at a time, the ones that matter
 3. **Present short design in chat** — approach, files touched, testing
 4. **Get approval** — STOP and wait for an explicit yes; presenting the design and starting in the same breath is skipping the gate
 5. **Implement** — proceed with the normal development workflow (TDD applies); no plan document
 
 **Architectural:**
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore affected architecture** — map the named subsystem/contracts and relevant docs/tests; expand only across evidenced boundaries
 2. **Offer the visual companion just-in-time** — NOT upfront. The first time a question would genuinely be clearer shown than described, offer it then (its own message); on approval its browser tab opens for you. If no visual question ever arises, never offer it. See the Visual Companion section below.
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
@@ -122,7 +141,7 @@ digraph brainstorming {
     "Spec self-review\n(fix inline)" [shape=box];
     "User reviews spec?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
-    "Hidden complexity? Upgrade path" [shape=box];
+    "Evidence changes boundary? Re-classify up or down" [shape=box];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
     "Classify: spike / bounded / architectural" -> "Ask clarifying questions (bounded)" [label="bounded"];
@@ -132,7 +151,7 @@ digraph brainstorming {
     "Present short design in chat" -> "Human approves?";
     "Human approves?" -> "Investigate; report recommendation" [label="spike: yes"];
     "Human approves?" -> "Implement via normal workflow (no plan doc)" [label="bounded: yes"];
-    "Hidden complexity? Upgrade path" -> "Classify: spike / bounded / architectural";
+    "Evidence changes boundary? Re-classify up or down" -> "Classify: spike / bounded / architectural";
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
     "Propose 2-3 approaches" -> "Present design sections";
@@ -163,7 +182,7 @@ is the whole process.
 
 **Understanding the idea:**
 
-- Check out the current project state first (files, docs, recent commits)
+- Check the current task path first (entry, owner, direct contracts, tests, and relevant recent changes); use codebase-navigation only when this path is unknown
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea

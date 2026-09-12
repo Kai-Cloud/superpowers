@@ -1,53 +1,49 @@
 ---
 name: using-superpowers
-description: Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions
+description: Use when starting a conversation with Superpowers installed, or when choosing which Superpowers skill applies to a substantive task.
 ---
 
 <SUBAGENT-STOP>
 If you were dispatched as a subagent to execute a specific task, ignore this skill.
 </SUBAGENT-STOP>
 
-<EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
+## Start With the Task Boundary
 
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
+**Invoke requested skills and follow them.** For other work, choose the smallest
+materially relevant skill before the action it governs:
 
-This is not negotiable. You cannot rationalize your way out of this.
-</EXTREMELY-IMPORTANT>
+1. Name the requested behavior, symptom, or deliverable and its task boundary.
+2. Use the known entry/path and direct proof. If an existing repository's path,
+   owner, or contract is unknown, use `superpowers:codebase-navigation` to build
+   a bounded task map; known local files do not need another navigation pass.
+3. Select only the process needed now: design choices → brainstorming; a bug →
+   systematic-debugging; an approved multi-step deliverable → planning or the
+   execution mode explicitly selected by your human partner.
+4. Expand only when evidence identifies a named boundary that changes the
+   decision. New evidence can also narrow the scope and downgrade the process.
+   If evidence is missing, state `Unknown` and the next cheapest verification;
+   stop or hand off when that evidence is unavailable.
+5. Announce "Using [skill] to [purpose]" and follow the selected skill's checklist.
 
-## The Rule
+Process skills set the approach before implementation skills when both apply.
+A hypothetical chance of relevance is not a reason to chain skills. Entering
+plan mode does not itself create a need for brainstorming; unresolved design
+choices do. Real feature design still needs your human partner's approval.
 
-**Invoke relevant or requested skills BEFORE any response or action** — including clarifying questions, exploring the codebase, or checking files. If it turns out wrong for the situation, you don't have to use it.
+## Non-Escalating Work
 
-**Before entering plan mode:** if you haven't already brainstormed, invoke the brainstorming skill first.
+An audit, read-only investigation, explanation, or known local correction to
+tests, fixtures, assertions, harnesses, metadata, or non-behavioral documentation
+ends with an evidence report or focused proof. It is not an implementation-plan
+workflow. Do the authorized inspection/correction, verify its named claim, and
+stop rather than starting a design, worktree, execution, or integration ceremony.
 
-Then announce "Using [skill] to [purpose]" and follow the skill exactly. If it has a checklist, create a todo per item.
-
-## Skill Priority
-
-When multiple skills apply, process skills come first — they set the approach, then implementation skills (frontend-design, etc.) carry it out. Brainstorming and systematic-debugging are Superpowers' most common process skills, but the rule holds for any of them.
-
-- "Let's build X" → superpowers:brainstorming first, then implementation skills.
-- "Fix this bug" → superpowers:systematic-debugging first, then domain skills.
-
-## Red Flags
-
-These thoughts mean STOP—you're rationalizing:
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
+If evidence instead establishes a production behavior, public contract, routing,
+or authority change, explain that new boundary and obtain the needed approval
+before expanding the task. Uncertainty alone does not authorize expansion.
+A plan, available tools, or a manifest is not consent to create branches or
+worktrees, install dependencies, or run broad/model tests; use task-scoped
+user/project authorization for preparation and verification.
 
 ## Platform Adaptation
 
@@ -60,4 +56,8 @@ If your harness appears here, read its reference file for special instructions:
 
 ## User Instructions
 
-User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take precedence over skills, which in turn override default behavior. Only skip skill workflows or instructions when your human partner has explicitly told you to.
+User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take
+precedence over skills, which in turn override default behavior. A clear task
+boundary, proof method, or contrary process instruction can narrow or skip an
+otherwise applicable workflow. Skills never override safety, authorization, or
+deployment constraints, and invoking one does not authorize unrelated work.

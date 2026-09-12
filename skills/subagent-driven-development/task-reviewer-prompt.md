@@ -4,10 +4,15 @@ Use this template when dispatching a task reviewer subagent. The reviewer
 reads the task's diff once and returns two verdicts: spec compliance and
 code quality.
 
+The wrapper below is a **Claude Code** foreground example. The controller
+uses the same parent model under SDD's Model Selection and Dispatch contract;
+missing `model` is not runtime proof of inheritance. On other harnesses, use
+only supported dispatch fields and completion events.
+
 **Purpose:** Verify one task's implementation matches its requirements (nothing
 more, nothing less) and is well-built (clean, tested, maintainable)
 
-```
+```text
 Subagent (general-purpose):
   description: "Review Task N (spec + quality)"
   run_in_background: false
@@ -19,7 +24,7 @@ Subagent (general-purpose):
 
     ## Dispatch Boundary
 
-    This is a read-only task-scoped review. Do not use the Skill tool or invoke any skill, do not dispatch nested agents or reviewers, and do not run broad review workflows. Inspect the supplied brief, report, and diff, then return the required verdict. Do not load `using-superpowers`, `code-review`, `brainstorming`, or any other skill during this review.
+    This is a read-only task-scoped review. Do not use the Skill tool or invoke any skill, do not dispatch nested agents or reviewers, and do not run broad review workflows. Inspect the supplied brief, report, and diff, then return the required verdict. Do not load `using-superpowers`, `requesting-code-review`, `code-review`, `brainstorming`, or any other skill during this review. The coordinator has already requested this review; return the report and stop.
 
     ## What Was Requested
 
@@ -82,7 +87,8 @@ Subagent (general-purpose):
     package-wide suite, race detector run, or repeated/high-count loop. If
     heavy validation seems warranted, recommend it in your report instead of
     running it. If you cannot run commands in this environment, name the
-    test you would run.
+    test you would run. Model-behavior tests belong to the controller's
+    separately budgeted validation task, not this review.
 
     Warnings or other noise in the implementer's reported test output are
     findings — test output should be pristine.
@@ -191,7 +197,7 @@ Subagent (general-purpose):
 ```
 
 **Placeholders:**
-- No model placeholder is used: the reviewer inherits the parent session's model.
+- No per-task model placeholder: the controller preserves and verifies the same parent model using the supported harness mechanism.
 - `[BRIEF_FILE]` — REQUIRED: the task brief file (`scripts/task-brief PLAN N`
   prints the path; same file the implementer worked from)
 - `[GLOBAL_CONSTRAINTS]` — the binding requirements copied verbatim from

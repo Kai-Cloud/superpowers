@@ -1,31 +1,214 @@
 #!/usr/bin/env bash
 # Helper functions for Claude Code skill tests
 
-# Run Claude Code with a prompt and capture output
-# Usage: run_claude "prompt text" [timeout_seconds] [allowed_tools]
-run_claude() {
-    local prompt="$1"
-    local timeout="${2:-60}"
-    local allowed_tools="${3:-}"
-    local output_file=$(mktemp)
+# Derive the source checkout when sourced, not from a temporary fixture's cwd.
+CLAUDE_TEST_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+export CLAUDE_TEST_REPO_ROOT
 
-    # Build command as an argv array so timeout wraps claude directly.
-    local cmd=(claude -p "$prompt")
-    if [ -n "$allowed_tools" ]; then
-        cmd+=(--allowed-tools="$allowed_tools")
-    fi
-
-    # Run Claude in headless mode with timeout
-    if timeout "$timeout" "${cmd[@]}" > "$output_file" 2>&1; then
-        cat "$output_file"
-        rm -f "$output_file"
-        return 0
+claude_test_python() {
+    if [ -n "${PYTHON_BIN:-}" ]; then
+        "$PYTHON_BIN" "$@"
+    elif command -v python3 >/dev/null 2>&1; then
+        python3 "$@"
+    elif command -v python >/dev/null 2>&1; then
+        python "$@"
     else
-        local exit_code=$?
-        cat "$output_file" >&2
-        rm -f "$output_file"
-        return $exit_code
+        printf 'ERROR: Python 3 is required for offline test artifacts; no installation attempted.\n' >&2
+        return 1
     fi
+}
+
+# Native Windows CLI argv/config paths use cygpath, never guessed drive rewrites.
+claude_test_native_path() {
+    if command -v cygpath >/dev/null 2>&1; then cygpath -am "$1"; else printf '%s\n' "$1"; fi
+}
+
+require_model_tests() {
+    if [ "${ALLOW_MODEL_TESTS:-}" != 1 ]; then
+        printf 'ERROR: Live tests require explicit ALLOW_MODEL_TESTS=1.\n' >&2
+        return 1
+    fi
+}
+
+# Standard-library metadata only: never probe the CLI or read user credentials.
+# The manifest hashes source bytes (including dirty/untracked files), not a claimed version.
+claude_test_artifact() {
+    claude_test_python - "$@" <<'PY'
+import hashlib
+import json
+import os
+import pathlib
+import struct
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+mode, *args = sys.argv[1:]
+if mode == 'prepare':
+    source, repo, artifacts, cwd, binary, timeout, budget, cap, test_mode, model, effort, output, *argv = args
+    timeout, cap = int(timeout), int(cap)
+    budget = float(budget)
+    source, repo, artifacts, cwd, binary = map(lambda p: pathlib.Path(p).resolve(), (source, repo, artifacts, cwd, binary))
+    for path, name in ((cwd, 'cwd'), (artifacts, 'artifacts')):
+        if path.is_relative_to(source) or path.is_relative_to(repo):
+            raise SystemExit(f'ERROR: {name} must be external to the source checkout/snapshot')
+    if os.name == 'nt' and test_mode != '1':
+        with binary.open('rb') as f:
+            header = f.read(64)
+            if binary.suffix.lower() != '.exe' or header[:2] != b'MZ' or len(header) < 64:
+                raise SystemExit('ERROR: Windows model tests require a native .exe; stubs require CLAUDE_TEST_MODE=1')
+            f.seek(struct.unpack_from('<I', header, 60)[0])
+            if f.read(4) != b'PE\0\0':
+                raise SystemExit('ERROR: CLAUDE_BIN is not a native Windows PE executable')
+    artifacts.mkdir(parents=True, exist_ok=True)
+    # A filesystem reservation survives command substitution and concurrent shells.
+    run = None
+    for number in range(1, cap + 1):
+        candidate = artifacts / f'run-{number:03d}'
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            continue
+        run = candidate
+        break
+    if run is None:
+        raise SystemExit('ERROR: CLAUDE_MAX_CALLS exhausted; no retries or extra calls permitted')
+    config = run / 'config'
+    config.mkdir()
+    settings = {'enabledPlugins': {}, 'autoUpdatesChannel': 'stable'}
+    (config / 'settings.json').write_text(json.dumps(settings), encoding='utf-8')
+    (run / 'settings.json').write_text(json.dumps(settings), encoding='utf-8')
+    (run / 'mcp.json').write_text('{"mcpServers":{}}', encoding='utf-8')
+    manifest = {}
+    for base, dirs, files in os.walk(source):
+        dirs[:] = sorted(d for d in dirs if d not in {'.git', 'node_modules', '__pycache__'})
+        for name in sorted(files):
+            path = pathlib.Path(base) / name
+            if name == '.git':
+                continue
+            payload = os.readlink(path).encode() if path.is_symlink() else path.read_bytes()
+            manifest[path.relative_to(source).as_posix()] = hashlib.sha256(payload).hexdigest()
+    serialized = json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode()
+    (run / 'source-manifest.json').write_bytes(serialized + b'\n')
+    def git(*command):
+        result = subprocess.run(['git', '-C', str(source), *command], capture_output=True, text=True, timeout=10)
+        return result.stdout.strip() if result.returncode == 0 else None
+    git_sha = dirty = None
+    top = git('rev-parse', '--show-toplevel')
+    if top and pathlib.Path(top).resolve() == source:
+        git_sha = git('rev-parse', 'HEAD')
+        dirty = git('status', '--porcelain', '--untracked-files=all')
+    provenance = {
+        'started_at': datetime.now(timezone.utc).isoformat(),
+        'requested': {'cli_bin': str(binary), 'plugin_dir': str(source), 'cwd': str(cwd),
+                      'model': model or None, 'effort': effort, 'output_format': output,
+                      'timeout_seconds': timeout, 'max_budget_usd': budget, 'max_calls': cap,
+                      'retry_count': 0, 'test_mode': test_mode == '1', 'child_model': 'inherit'},
+        'source': {'git_sha': git_sha, 'dirty': bool(dirty) if dirty is not None else None,
+                   'content_sha256': hashlib.sha256(serialized).hexdigest(),
+                   'digest_excludes': ['.git', 'node_modules', '__pycache__']},
+        'observed': {'init': None, 'result': None, 'plugin_source_verified': False,
+                     'child_models': 'NOT_VERIFIED'},
+        'argv': argv,
+        'exit_code': None,
+    }
+    (run / 'provenance.json').write_text(json.dumps(provenance, indent=2), encoding='utf-8')
+    print(run.as_posix())
+elif mode == 'finish':
+    run, status, *argv = args
+    run = pathlib.Path(run)
+    path = run / 'provenance.json'
+    provenance = json.loads(path.read_text(encoding='utf-8'))
+    provenance['argv'] = argv
+    provenance['exit_code'] = int(status)
+    provenance['finished_at'] = datetime.now(timezone.utc).isoformat()
+    for line in (run / 'stdout.txt').read_text(encoding='utf-8', errors='replace').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        if event.get('type') == 'system' and event.get('subtype') == 'init':
+            provenance['observed']['init'] = {key: event[key] for key in ('model', 'claude_code_version', 'plugins', 'skills', 'session_id', 'cwd') if key in event}
+        elif event.get('type') == 'result':
+            provenance['observed']['result'] = {key: event[key] for key in ('subtype', 'is_error', 'total_cost_usd', 'usage', 'modelUsage', 'session_id') if key in event}
+    path.write_text(json.dumps(provenance, indent=2), encoding='utf-8')
+PY
+}
+
+# Single CLI entrypoint. Text remains the default; stream JSON is opt-in.
+# Live contract: ALLOW_MODEL_TESTS=1, CLAUDE_BIN, PLUGIN_DIR (default: this repo),
+# CLAUDE_MODEL, CLAUDE_EFFORT=high, CLAUDE_MAX_BUDGET_USD<=100,
+# CLAUDE_TEST_ARTIFACTS=external unique directory, CLAUDE_MAX_CALLS=1 by default.
+# Usage: run_claude PROMPT [TIMEOUT_SECONDS=60] [allowed_tools]
+run_claude() (
+    require_model_tests || return
+    local prompt="${1:?Prompt required}" timeout_seconds="${2:-60}" allowed_tools="${3:-}"
+    local budget="${CLAUDE_MAX_BUDGET_USD:-100}" cap="${CLAUDE_MAX_CALLS:-1}"
+    local format="${CLAUDE_OUTPUT_FORMAT:-text}" effort="${CLAUDE_EFFORT:-high}"
+    if ! [[ "$timeout_seconds" =~ ^[1-9][0-9]{0,5}$ && "$cap" =~ ^[1-9][0-9]{0,3}$ && "$budget" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        printf 'ERROR: Positive finite timeout, cost and call limits are required.\n' >&2
+        return 2
+    fi
+    if ! claude_test_python -c 'import sys; x=float(sys.argv[1]); sys.exit(not 0 < x <= 100)' "$budget"; then
+        printf 'ERROR: CLAUDE_MAX_BUDGET_USD must be greater than zero and at most 100.\n' >&2
+        return 2
+    fi
+    case "$format" in text|json|stream-json) ;; *) printf 'ERROR: Unsupported output format.\n' >&2; return 2;; esac
+    case "$effort" in low|medium|high|xhigh|max) ;; *) printf 'ERROR: Unsupported effort.\n' >&2; return 2;; esac
+    local plugin="${PLUGIN_DIR:-$CLAUDE_TEST_REPO_ROOT}" binary="${CLAUDE_BIN:-claude}"
+    local artifacts="${CLAUDE_TEST_ARTIFACTS:-}"
+    if [ -z "$artifacts" ]; then
+        printf 'ERROR: Set CLAUDE_TEST_ARTIFACTS to an external unique directory.\n' >&2
+        return 2
+    fi
+    case "$plugin" in /*|[A-Za-z]:[\\/]*) ;; *) printf 'ERROR: PLUGIN_DIR must be absolute.\n' >&2; return 2;; esac
+    case "$artifacts" in /*|[A-Za-z]:[\\/]*) ;; *) printf 'ERROR: CLAUDE_TEST_ARTIFACTS must be absolute.\n' >&2; return 2;; esac
+    plugin=$(cd "$plugin" && pwd -P) || return
+    if [ ! -f "$plugin/.claude-plugin/plugin.json" ]; then
+        printf 'ERROR: PLUGIN_DIR does not contain a Claude plugin manifest.\n' >&2
+        return 2
+    fi
+    binary=$(command -v "$binary") || { printf 'ERROR: CLAUDE_BIN was not found; no installation attempted.\n' >&2; return 2; }
+    binary=$(claude_test_native_path "$binary") || return
+    plugin=$(claude_test_native_path "$plugin") || return
+    artifacts=$(claude_test_native_path "$artifacts") || return
+    local cmd=("$binary" -p "$prompt" --plugin-dir "$plugin" --output-format "$format"
+        --effort "$effort" --max-budget-usd "$budget")
+    if [ -n "${CLAUDE_MODEL:-}" ]; then cmd+=(--model "$CLAUDE_MODEL"); fi
+    if [ -n "$allowed_tools" ]; then cmd+=(--allowed-tools="$allowed_tools"); fi
+    if [ "$format" = stream-json ]; then cmd+=(--verbose --include-hook-events); fi
+    local run_dir
+    run_dir=$(claude_test_artifact prepare "$plugin" "$(claude_test_native_path "$CLAUDE_TEST_REPO_ROOT")" "$artifacts" "$(claude_test_native_path "$PWD")" \
+        "$binary" "$timeout_seconds" "$budget" "$cap" "${CLAUDE_TEST_MODE:-0}" "${CLAUDE_MODEL:-}" "$effort" "$format" "${cmd[@]}") || return
+    cmd+=(--settings "$run_dir/settings.json" --setting-sources user
+        --strict-mcp-config --mcp-config "$run_dir/mcp.json" --no-chrome --permission-mode bypassPermissions)
+    # Only these disposable-fixture child processes use bypassPermissions.
+    # Credentials stay in the child environment, never in provenance or argv.
+    export CLAUDE_CONFIG_DIR="$run_dir/config" CLAUDE_CODE_SUBAGENT_MODEL=inherit
+    export DISABLE_AUTOUPDATER=1 CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+    unset CLAUDECODE
+    if [ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]; then unset ANTHROPIC_API_KEY; fi
+    local status=0
+    timeout --kill-after=5 "$timeout_seconds" "${cmd[@]}" > "$run_dir/stdout.txt" 2> "$run_dir/stderr.txt" || status=$?
+    claude_test_artifact finish "$run_dir" "$status" "${cmd[@]}" || return
+    printf 'Claude test artifacts: %s\n' "$run_dir" >&2
+    if [ "$status" -eq 0 ]; then
+        cat "$run_dir/stdout.txt"
+    else
+        cat "$run_dir/stdout.txt" "$run_dir/stderr.txt" >&2
+    fi
+    return "$status"
+)
+
+# Fixed, structured recall oracle: allow a complete brief file or inline text,
+# but never require the implementer to load the controller's full plan.
+assert_task_brief_contract() {
+    local answer="$1"
+    printf '%s\n' "$answer" | grep -Eiq '^Controller provides:.*(task[ -]brief|full.*(task )?text|complete.*task)' &&
+    printf '%s\n' "$answer" | grep -Eiq '^Implementer must read full plan file:[[:space:]]*no[[:space:].]*$' &&
+    ! printf '%s\n' "$answer" | grep -Ei '^Implementer must read full plan file:' | grep -Eivq ':[[:space:]]*no[[:space:].]*$'
 }
 
 # Check if output contains a pattern

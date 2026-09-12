@@ -41,9 +41,25 @@ Use for ANY technical issue:
 - You're in a hurry (rushing guarantees rework)
 - Manager wants it fixed NOW (systematic is faster than thrashing)
 
+## Investigation Boundary
+
+Name the observed symptom, failing or suspected path, owner/contract, hypothesis,
+and focused proof before widening the investigation. Use known files directly;
+when a large or unfamiliar repository's relevant path is unknown, use
+`superpowers:codebase-navigation` for a bounded task map.
+
+Follow current evidence across direct callers/consumers and named failure
+boundaries. Never inspect every component merely because the system has multiple
+components. Expand only when evidence identifies a boundary that can change the
+next decision; narrow the investigation when that concern is resolved.
+If a fact remains `Unknown`, name the next cheapest verification and stop or
+hand off when it is unavailable. An audit or explanation ends in evidence;
+diagnosis alone does not authorize remediation or a project workflow.
+
 ## The Four Phases
 
-You MUST complete each phase before proceeding to the next.
+For an authorized fix, complete each phase before proceeding to the next.
+For an investigation-only request, stop at the requested evidence report.
 
 ### Phase 1: Root Cause Investigation
 
@@ -62,26 +78,24 @@ You MUST complete each phase before proceeding to the next.
    - If not reproducible → gather more data, don't guess
 
 3. **Check Recent Changes**
-   - What changed that could cause this?
-   - Git diff, recent commits
-   - New dependencies, config changes
-   - Environmental differences
+   - What changed on the failing path that could cause this?
+   - Relevant Git diff, recent commits, dependencies/config
+   - Environmental differences at the named failure boundary
 
 4. **Gather Evidence in Multi-Component Systems**
 
-   **WHEN system has multiple components (CI → build → signing, API → service → database):**
+   **WHEN the suspected path crosses components (CI → build → signing, API → service → database):**
 
-   **BEFORE proposing fixes, add diagnostic instrumentation:**
-   ```
-   For EACH component boundary:
-     - Log what data enters component
-     - Log what data exits component
-     - Verify environment/config propagation
-     - Check state at each layer
+   **Use existing evidence first; instrument the unresolved boundary if needed:**
+   ```text
+   For the named boundary on the failing path:
+     - Observe the relevant input and output
+     - Verify the controlling environment/config and state
+     - Compare the expected and observed contract
 
-   Run once to gather evidence showing WHERE it breaks
-   THEN analyze evidence to identify failing component
-   THEN investigate that specific component
+   Run the focused reproduction to identify WHERE it breaks
+   THEN investigate that component
+   Expand only if the evidence implicates the next boundary
    ```
 
    **Example (multi-layer system):**
@@ -126,14 +140,14 @@ You MUST complete each phase before proceeding to the next.
    - What works that's similar to what's broken?
 
 2. **Compare Against References**
-   - If implementing pattern, read reference implementation COMPLETELY
-   - Don't skim - read every line
-   - Understand the pattern fully before applying
+   - Read the relevant reference contract and complete implementation slice
+   - Include direct callers/config that affect the hypothesis, not every sibling
+   - Resolve assumptions needed to apply the pattern; expand for evidence, not reassurance
 
 3. **Identify Differences**
-   - What's different between working and broken?
-   - List every difference, however small
-   - Don't assume "that can't matter"
+   - What's different between working and broken on the selected path?
+   - List differences that could explain the symptom, including small defaults
+   - Test relevance rather than assuming "that can't matter"
 
 4. **Understand Dependencies**
    - What other components does this need?
@@ -160,10 +174,9 @@ You MUST complete each phase before proceeding to the next.
    - DON'T add more fixes on top
 
 4. **When You Don't Know**
-   - Say "I don't understand X"
-   - Don't pretend to know
-   - Ask for help
-   - Research more
+   - State `Unknown` precisely; don't pretend to know
+   - Name the missing evidence and next cheapest verification
+   - If unavailable, stop with an exact handoff or one focused question
 
 ### Phase 4: Implementation
 
@@ -174,7 +187,8 @@ You MUST complete each phase before proceeding to the next.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+   - For production behavior changes, use `superpowers:test-driven-development`
+   - A known local test/fixture/harness correction needs its focused red/green proof, not a new production-design workflow
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -184,7 +198,7 @@ You MUST complete each phase before proceeding to the next.
 
 3. **Verify Fix**
    - Test passes now?
-   - No other tests broken?
+   - Affected contract tests still pass? Expand only for a named integration boundary or required repository/final gate; do not claim unrun suites pass.
    - Issue actually resolved?
    - Use the `superpowers:verification-before-completion` skill before claiming success
 
@@ -250,7 +264,7 @@ If you catch yourself thinking:
 | "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
 | "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
 | "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
-| "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
+| "Reference too long, I'll adapt the pattern" | Read the complete relevant contract and implementation slice; resolve named Unknowns, not every unrelated reference file. |
 | "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
 | "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem. Question pattern, don't fix again. |
 

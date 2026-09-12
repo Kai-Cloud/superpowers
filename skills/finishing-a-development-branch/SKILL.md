@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work
+description: Use when implementation is ready for integration, its required verification has passed, and a human must decide how to integrate the work
 ---
 
 # Finishing a Development Branch
@@ -11,11 +11,29 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
+An audit, explanation, or local test/harness correction that ends with an
+evidence report is not an integration request. Do not start this workflow,
+create a branch/worktree, or install dependencies merely because that task is
+finished. Follow the authorized task scope and any user/project preparation rules.
+
+If your human partner explicitly chose to keep the work as-is or asked for a
+report without integration, honor that choice: provide the scoped evidence and
+remaining limitations, leave the branch/worktree intact, and stop. Skip the
+integration menu and integration-only checks; task-required verification still
+applies. The steps below apply when an integration decision is still needed.
+
 ## Step 1: Verify Tests
 
-Run the project's full test suite (`npm test` / `cargo test` / `pytest` / `go test ./...`).
+Use `superpowers:verification-before-completion` for the named integration claim.
+Run the required verification on the tree to integrate: affected-contract proof
+plus any full suite required by the named integration boundary, repository rule,
+or final delivery gate. Finishing is not an automatic excuse to run unrelated
+suites. Reuse current evidence for an unchanged tree and relevant inputs; rerun
+when those change. Report skipped, blocked, or unrun checks without claiming they
+passed.
 
-**If tests fail**, report the failures and stop — the menu comes after a green suite:
+**If required tests fail**, report the failures and stop — the menu comes after
+that verification passes:
 
 ```
 Tests failing (<N> failures). Must fix before completing:
@@ -213,7 +231,7 @@ place. If your platform provides a workspace-exit tool, use it.
 
 | Excuse | Reality |
 |--------|---------|
-| "Tests passed earlier this session" | Run the suite on the tree you are about to integrate. A green run only proves the tree it ran on. |
+| "Tests passed earlier this session" | Check that the evidence covers this tree, inputs, and integration claim. Reuse it if unchanged; verify again after relevant changes or a merge. |
 | "They obviously want it merged" | Integration is your human partner's decision. Present the menu and wait. |
 | "They seem done with this feature — I'll offer to discard it" | The menu is complete as written. Discard happens only when your human partner asks for it in so many words. |
 | "'Yeah, get rid of it' counts as confirmation" | Only the typed word `discard` authorizes deletion. |

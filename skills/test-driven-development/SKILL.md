@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when implementing a production feature, bugfix, refactor, interface, or behavior change, before writing production code
 ---
 
 # Test-Driven Development (TDD)
@@ -15,13 +15,21 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 ## When to Use
 
-**Always:**
+**For production changes:**
 - New features
 - Bug fixes
 - Refactoring
-- Behavior changes
+- Interface or behavior changes
 
-**Exceptions (ask your human partner):**
+**Test-only corrections are different.** Fixing an incorrect assertion, fixture,
+harness, or runner without changing production behavior uses focused local
+verification, not a new implementation cycle. Do not delete correct working
+production code to manufacture RED. Show the correction catches the named
+contract defect; a passing characterization of existing correct behavior is
+not a production TDD violation. If investigation exposes a real production bug,
+write its failing regression test before changing production code.
+
+**Exceptions for production work (ask your human partner):**
 - Throwaway prototypes
 - Generated code
 - Configuration files
@@ -34,15 +42,10 @@ Thinking "skip TDD just this once"? Stop. That's rationalization.
 NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 ```
 
-Write code before the test? Delete it. Start over.
-
-**No exceptions:**
-- Don't keep it as "reference"
-- Don't "adapt" it while writing tests
-- Don't look at it
-- Delete means delete
-
-Implement fresh from tests. Period.
+Wrote a new production change before its failing test? Discard that untested
+change and implement it fresh from tests. Do not use the discarded change as
+"reference" or adapt it while writing the test. This reset applies to the new
+production work, not correct pre-existing code or test-only corrections.
 
 ## Red-Green-Refactor
 
@@ -123,7 +126,10 @@ Confirm:
 - Failure message is expected
 - Fails because feature missing (not typos)
 
-**Test passes?** You're testing existing behavior. Fix test.
+**New-production test passes immediately?** Confirm the named behavior is
+actually missing and the assertion exercises it. Do not break correct code to
+force RED; an already-satisfied requirement or test-only correction needs no
+production rewrite.
 
 **Test errors?** Fix error, re-run until it fails correctly.
 
@@ -178,9 +184,13 @@ Confirm:
 - Other tests still pass
 - Output pristine (no errors, warnings)
 
-**Test fails?** Fix code, not test.
+**Test fails?** If its independent expectation correctly describes the required
+behavior, fix production code rather than weakening the test. If the assertion
+or fixture is wrong, correct it with focused evidence; do not change correct
+production behavior to satisfy a faulty test.
 
-**Other tests fail?** Fix now.
+**Other tests fail?** Investigate regressions in the affected scope. Report
+unrelated failures rather than silently expanding the task.
 
 ### REFACTOR - Clean Up
 
@@ -204,8 +214,8 @@ Next failing test for next feature.
 | **Shows intent** | Demonstrates desired API | Obscures what code should do |
 
 When writing or changing any test, read [writing-good-tests.md](writing-good-tests.md) for the rules that keep tests honest:
-- Name the production change that would make the test fail — before writing it
-- Assert on real behavior, never on mock behavior
+- Name the behavior or mechanical-contract defect the test catches — before writing it
+- Exercise real behavior for behavior claims; do not assert merely that a mock exists
 - Keep test-only code in test utilities, out of production classes
 - Understand a dependency's side effects before mocking it
 
@@ -225,9 +235,9 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
 | "Existing code has no tests" | You're improving it. Add tests for existing code. |
 
-## Red Flags - STOP and Start Over
+## Red Flags for New Production Work
 
-- Code before test
+- Production code before its failing test
 - Test after implementation
 - Test passes immediately
 - Can't explain why test failed
@@ -241,7 +251,9 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 - "TDD is dogmatic, I'm being pragmatic"
 - "This is different because..."
 
-**All of these mean: Delete code. Start over with TDD.**
+**For an untested new production change, discard that change and restart from
+a failing test.** For a test-only correction, preserve correct production code
+and demonstrate the corrected test's contract instead.
 
 ## Example: Bug Fix
 
@@ -282,9 +294,9 @@ Extract validation for multiple fields if needed.
 
 ## Verification Checklist
 
-Before marking work complete:
+For new production work, before marking work complete:
 
-- [ ] Every new function/method has a test
+- [ ] Each changed behavior has an appropriate test
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
@@ -293,7 +305,9 @@ Before marking work complete:
 - [ ] Tests use real code (mocks only if unavoidable)
 - [ ] Edge cases and errors covered
 
-Can't check all boxes? You skipped TDD. Start over.
+A missing production proof is incomplete work: report the gap and resolve it
+within the task's scope. This checklist does not turn a test-only correction
+into a production rewrite.
 
 ## When Stuck
 

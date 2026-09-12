@@ -2,7 +2,12 @@
 
 Use this template when dispatching an implementer subagent.
 
-```
+The wrapper below is a **Claude Code** foreground example. The controller
+uses the same parent model under SDD's Model Selection and Dispatch contract;
+missing `model` is not runtime proof of inheritance. On an asynchronous harness,
+adapt only to supported tool fields and completion events, not Claude syntax.
+
+```text
 Subagent (general-purpose):
   description: "Implement Task N: [task name]"
   run_in_background: false
@@ -43,8 +48,11 @@ Subagent (general-purpose):
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.
 
-    While iterating, run the focused test for what you're changing; run the
-    full suite once before committing, not after every edit.
+    Run the focused tests covering the affected contract, and report the
+    commands and results. Run a full suite only for a named integration gate,
+    an explicit repository rule, or a final-delivery requirement in the brief.
+    A commit by itself is not a full-suite trigger; do not repeat an existing
+    run on unchanged code just for reassurance.
 
     ## You Do Not Dispatch Subagents
 
@@ -57,6 +65,12 @@ Subagent (general-purpose):
     the process. If you catch yourself thinking "an independent review
     would strengthen my report" — that review is already scheduled.
     Report instead.
+
+    For skill or prompt edits, your verification is local proof: source
+    contracts, fixtures, and affected tests. Do not launch model-behavior
+    tests, pressure sessions, or nested validators. The controller owns any
+    separately approved finite-budget model validation. Report missing
+    behavioral evidence as unverified; do not manufacture it from static tests.
 
     ## Code Organization
 
@@ -85,8 +99,8 @@ Subagent (general-purpose):
 
     **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
     specifically what you're stuck on, what you've tried, and what kind of help you need.
-    The controller can provide more context, re-dispatch with a more capable model,
-    or break the task into smaller pieces.
+    The controller can provide missing evidence, narrow the brief, break the
+    task into smaller pieces, or give a fresh worker the same parent model.
 
     ## Before Reporting Back: Self-Review
 

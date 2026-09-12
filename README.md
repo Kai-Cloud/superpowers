@@ -30,6 +30,29 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
+## Fork 6.3.5 candidate
+
+This fork keeps the task brief, ledger, bounded repair loops, and scoped SDD
+reviews from 6.3.4 while restoring evidence-bounded navigation and proportional
+validation from the separate 6.3.2 customization line. Known local work stays
+local; explicit inline execution stays inline; independent audits report and
+stop. Worker model intent remains with the parent, using each harness's supported
+routing and completion mechanisms rather than selecting cheaper or stronger
+models inside a task.
+
+Run local checks without invoking a model:
+
+```bash
+bash tests/claude-code/run-offline-checks.sh
+```
+
+Live recall, integration, and bounded behavior smoke require explicit opt-in,
+an external artifact directory, a pinned native CLI and plugin source, and
+finite call/time/cost budgets. Static tests do not prove runtime behavior.
+See [the 6.3.5 audit disposition](docs/6.3.5-audit-disposition.md) for validation
+and limitations. The independent marketplace pin and other devices are not
+updated by changing this candidate's version fields.
+
 ## How it works
 
 It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code. Instead, it steps back and asks you what you're really trying to do. 
@@ -260,21 +283,13 @@ turn loses the bootstrap — start a fresh session if skills stop triggering.
 
 ## The Basic Workflow
 
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
+1. **Choose the bounded path.** Known local work uses its source and focused proof; unknown repository paths use **codebase-navigation**. Read-only audits and explanations end with a report, not an implementation ceremony.
+2. **Design where needed.** **brainstorming** resolves real feature/design choices and obtains approval. **writing-plans** prepares an approved multi-step implementation, not a mandatory document for every correction.
+3. **Respect the chosen execution mode.** Explicit inline work uses **executing-plans** without redirecting to workers. Explicit SDD uses scoped implementers and reviews, artifact handoffs, and finite repair limits. Worktrees and setup require applicable task authorization.
+4. **Verify the named claim.** Production behavior changes use TDD. Run affected tests and any required integration gate; report blocked proof honestly. Model-based skill validation is a separately bounded, explicitly authorized tier.
+5. **Review and finish within authorization.** Independent audits report findings and stop. Implementation reviews use their existing review seats. **finishing-a-development-branch** handles a remaining integration decision; it preserves an already-chosen keep/no-commit disposition and never discards work automatically.
 
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
-
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
-
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
-
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
-
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
-
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
-
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
+Requested skills and relevant safety/quality gates remain binding. Tool availability and hypothetical relevance do not authorize unrelated workflows, repeated reviews, or extra evaluations.
 
 ## Community
 

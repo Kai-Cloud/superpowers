@@ -1,6 +1,6 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session
+description: Use when a human partner explicitly selects subagent-driven-development for a named, approved multi-task plan with independent tasks
 ---
 
 # Subagent-Driven Development
@@ -14,47 +14,35 @@ Execute plan by dispatching a fresh implementer subagent per task, a task review
 **Narration:** between tool calls, narrate at most one short line — the
 ledger and the tool results carry the record.
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are the four named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+**Continuous execution:** Execute the approved plan without routine check-ins
+between tasks. Stop at completion or the authorization, feasibility, and
+verification/budget boundaries below. A running plan is not permission to
+expand scope, exceed a limit, or bypass a required gate.
 
-**Rulings, not stalls.** A running plan does not wait on a human. Conflicts,
-ambiguities, plan defects, a cap you would have asked to exceed — decide
-them. The spec is the binding authority, the plan is its argument, and your
-judgment settles what neither answers. Record every decision in the ledger as
-`Ruling: <what you decided> — <why> — <what it costs if wrong>`, and keep
-going. A wrong ruling costs rework your human partner can see and undo; a
-session parked on a question costs their whole day and buys nothing.
+**Rulings, not stalls.** Resolve reversible conflicts and ambiguities within
+the approved scope. The spec is the binding authority, the plan is its
+argument, and your judgment settles what neither answers. Record each decision
+as `Ruling: <what you decided> — <why> — <what it costs if wrong>`. A ruling
+cannot raise a repair or validation cap, waive required evidence, or grant new
+authority.
 
-Four things stop you, and only these: an irreversible or destructive
-operation; a security-sensitive action; a side effect outside this worktree
-that norms say you ask about first (a merge, a push to a shared branch, a
-publish); and a plan so broken that every path forward is a guess. For those,
-stop and ask.
+Stop and ask before an irreversible/destructive operation, a security-sensitive
+action, a side effect outside the authorized checkout (merge, shared push,
+publish), or a plan so broken that every path forward is a guess. Also stop
+with BLOCKED when a required verification gate cannot be satisfied or a named
+deadline/budget is exhausted. Do not turn missing evidence into repeated probes.
 
 ## When to Use
 
-```dot
-digraph when_to_use {
-    "Have implementation plan?" [shape=diamond];
-    "Tasks mostly independent?" [shape=diamond];
-    "Stay in this session?" [shape=diamond];
-    "subagent-driven-development" [shape=box];
-    "executing-plans" [shape=box];
-    "Manual execution or brainstorm first" [shape=box];
+Use this workflow only when your human partner explicitly selects SDD for a
+named, approved multi-task plan with independent tasks. Having subagent tools
+or staying in one session is not that selection. Explicit inline execution
+belongs to superpowers:executing-plans; a standalone audit ends in a report,
+not an implementation loop.
 
-    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
-    "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
-    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
-    "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
-    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
-    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
-}
-```
-
-**vs. Executing Plans (parallel session):**
-- Same session (no context switch)
-- Fresh subagent per task (no context pollution)
-- Review after each task (spec compliance + code quality), broad review at the end
-- Faster iteration (no human-in-loop between tasks)
+SDD uses a fresh implementer context per task, a task-scoped review, and one
+broad final review. Inline execution keeps implementation in the coordinator's
+session. Tool availability does not override your human partner's choice.
 
 ## The Process
 
@@ -72,13 +60,13 @@ digraph process {
         "Spec ✅ and quality approved?" [shape=diamond];
         "Finding conflicts with plan text?" [shape=diamond];
         "Rule on the conflict, ledger the ruling" [shape=box];
-        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [shape=box];
+        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, same parent model" [shape=box];
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
         "Adjudicate each open finding" [shape=box];
         "Any load-bearing finding?" [shape=diamond];
-        "Rule and continue; stop only if every path forward is a guess" [shape=box];
+        "Rule within scope; honor stop gates and caps" [shape=box];
         "Park findings in ledger with rulings" [shape=box];
         "Append completion to ledger, mark todo complete" [shape=box];
     }
@@ -100,16 +88,16 @@ digraph process {
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "Spec ✅ and quality approved?" -> "Finding conflicts with plan text?" [label="no"];
     "Finding conflicts with plan text?" -> "Rule on the conflict, ledger the ruling" [label="yes"];
-    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model";
-    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no"];
-    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" -> "Dispatch scoped re-review (./re-review-prompt.md)";
+    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, same parent model";
+    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, same parent model" [label="no"];
+    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, same parent model" -> "Dispatch scoped re-review (./re-review-prompt.md)";
     "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "R = 5?" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no - next round"];
+    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, same parent model" [label="no - next round"];
     "R = 5?" -> "Adjudicate each open finding" [label="yes - breaker trips"];
     "Adjudicate each open finding" -> "Any load-bearing finding?";
-    "Any load-bearing finding?" -> "Rule and continue; stop only if every path forward is a guess" [label="yes"];
+    "Any load-bearing finding?" -> "Rule within scope; honor stop gates and caps" [label="yes"];
     "Any load-bearing finding?" -> "Park findings in ledger with rulings" [label="no"];
     "Park findings in ledger with rulings" -> "Append completion to ledger, mark todo complete";
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
@@ -181,43 +169,47 @@ plan is its argument — record the ruling beside its row, and dispatch
 Task 1. The review loop remains the net for conflicts that only emerge from
 implementation.
 
-## Model Selection
+## Model Selection and Dispatch
 
-The parent session owns model selection. Every implementer, reviewer, and
-re-reviewer inherits the parent model; do not include a `model` parameter in
-any subagent dispatch. This keeps one workflow on one model lane and lets the
-harness choose a provider-compatible route.
+The parent session owns model selection. Every implementer, task reviewer,
+re-reviewer, and final reviewer uses the same effective parent model. Task
+complexity changes the brief, evidence, or review depth, not the model route.
+Fix-loop escalation supplies missing context, splits a task, or gives a fresh
+worker the same parent model. Do not switch models to resolve a blocker.
 
-All SDD workers are foreground calls: include `run_in_background: false` in
-implementer, reviewer, and re-reviewer dispatches. The controller waits for
-the result directly and must not replace that wait with ScheduleWakeup or
-polling loops. Reviewers are read-only task gates: they do not invoke Skill,
-spawn agents, or run broad review workflows inside the review. The controller
-must provide the review brief, report, and diff directly; reviewers do not
-rediscover or redesign the workflow.
+**Harness adaptation is not model selection.** On Claude Code use the
+supported parent-model inheritance mechanism; omit `model` when that mechanism
+inherits this session's model. Omitting `model` alone is not proof of
+inheritance: agent definitions, configured subagent defaults, and gateway
+routing can affect the effective child model. Check available runtime metadata
+against the effective parent route. If routing cannot be confirmed, record it
+as **unverified**, not as a pass or a proven mismatch. Do not invent a model
+ID, spawn extra probes, or change global model/effort configuration to make the
+check pass. A required route-verification gate stops when evidence is missing.
 
-Use the task's complexity guidance to shape the prompt and review depth, not
-to override the model: mechanical tasks stay narrowly scoped, integration
-tasks get their named interfaces and risks, and architecture/review tasks get
-more explicit context and verification. Fix-loop escalation changes the
-review instructions and evidence required, never the subagent model.
+Other harnesses use their supported inheritance or an explicit same-model
+parameter, checked against the actual tool schema/allowlist (see the relevant
+platform reference). This is not permission to select another model. No skill
+or template may prescribe machine-level model defaults.
 
-Explicit model overrides are forbidden in this fork. They can route nested
-calls to unavailable models or split one benchmark across different model
-lanes, which is especially harmful when the parent uses a fixed gateway route.
+**Claude Code dispatches are foreground:** include `run_in_background: false`
+for the implementer, task reviewer, re-reviewer, final reviewer, and fix worker.
+The blocking call returns the result directly. Do not simultaneously prescribe
+controller work, ScheduleWakeup, or polling while that call is blocked.
+Asynchronous adapters instead use completion events and bounded idle waiting,
+as described below; do not pass Claude-only fields to another harness.
 
-**Turn count beats token price.** Wall-clock and context cost scale with how
-many turns a subagent takes, and the cheapest models routinely take 2-3× the
-turns on multi-step work — costing more overall. Use a mid-tier model as the
-floor for reviewers and for implementers working from prose descriptions.
-When the task's plan text contains the complete code to write, the
-implementation is transcription plus testing: use the cheapest tier for
-that implementer. Single-file mechanical fixes also take the cheapest tier.
+Every dispatch carries its role boundary. Implementers do their own local
+work without nested agents. All reviewers are read-only: no Skill invocation,
+nested agents, workflow restart, or checkout/Git mutation. Provide the brief,
+report, and review package directly; reviewers return findings, not a workflow.
 
-**Task complexity signals (implementation tasks):**
-- Touches 1-2 files with a complete spec → cheap model
-- Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
+**Model-behavior validation:** the controller owns a separate, finite-budget
+validation task with named cases, call/time/cost limits, and a stop condition.
+Workers edit and run local proof only; they do not launch model tests or nested
+validators. Reuse existing evidence for the same source snapshot rather than
+duplicating a completed test or review. Static contract checks establish text
+consistency, not agent behavior or effective model inheritance.
 
 ## The Task Loop
 
@@ -233,16 +225,17 @@ Everything you paste into a dispatch prompt — and everything a subagent
 prints back — stays resident in your context for the rest of the session
 and is re-read on every later turn. Hand artifacts over as files.
 
-**Waiting on dispatched subagents:** never poll a wait interface with
-short timeouts, and never sit in one silent, open-ended wait either.
-While you have local work — ledger updates, packaging the next review,
-reading reports — keep working; child results arrive on their own.
-When you are genuinely idle, wait in bounded stretches (five to ten
-minutes, where your platform allows), and between stretches post one
-line of status and reconcile your live children: list them, and chase
-any that finished without reporting. A bounded stretch keeps nearly
-all of a long wait's efficiency while guaranteeing a stuck or lost
-child is noticed within minutes, not at the end of the session.
+**Waiting on dispatched subagents:** for a blocking foreground call, wait
+for its return; there is no concurrent controller reconciliation loop.
+For an asynchronous adapter, consume supported completion events while doing
+independent local work (ledger updates or packaging a different review), never
+the worker's assigned work. When idle, use bounded event waits within the
+adapter's supported limits (five to ten minutes where supported). On a
+completion or timeout, reconcile outstanding children once; do not short-poll
+or re-dispatch a child merely because its result has not arrived. Record a
+finite task deadline before dispatch. At that deadline, report BLOCKED and
+stop further dispatch; do not renew waits indefinitely or invent a pending
+result.
 
 ### 1. Dispatch the implementer
 
@@ -296,7 +289,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 
 **BLOCKED:** The implementer cannot complete the task. Assess the blocker:
 1. If it's a context problem, provide more context and re-dispatch with the same model
-2. If the task requires more reasoning, re-dispatch with a more capable model
+2. If the reasoning is stuck, supply the missing evidence or a narrower brief to a fresh worker on the same parent model
 3. If the task is too large, break it into smaller pieces
 4. If the plan itself is wrong, rule on the correction, ledger it, and re-dispatch with the ruling carried in the dispatch
 
@@ -379,12 +372,11 @@ choices. If your harness cannot send another message to a live subagent,
 dispatch a fresh implementer carrying the brief path, the report-file path,
 and the findings — the report file is the persistent memory either way.
 
-**Rounds 4-5 — dispatch a fresh implementer on a more capable model** (per
-Model Selection), with the brief path, the report-file path, the open
-findings, and this framing: "A prior implementer attempted this task
-[N] times; you own it now. Read the report file for what was tried." A loop
-that survives three resumes usually means the implementer cannot see its
-own problem — fresh eyes and a capability bump in one move.
+**Rounds 4-5 — dispatch a fresh implementer on the same parent model**, with
+the brief path, report-file path, open findings, and this framing: "A prior
+implementer attempted this task [N] times; you own it now. Read the report file
+for what was tried." Supply the missing evidence or narrow the unresolved
+question. Fresh context changes the approach, not the model or repair cap.
 
 **Every round, either way:** the implementer fixes, re-runs the tests
 covering the amended code, appends its fix report to the same report file,
@@ -422,8 +414,9 @@ the cross-task context the reviewer lacks:
   plan defect: rule on the smallest change that unblocks the dependent work,
   ledger it as `Task <N>: Ruling: <finding> — <what you decided and why>`,
   and carry it into the next task's dispatch. Parking a structural failure
-  silently lets every dependent task build on it. Stop only when the defect
-  leaves every path forward a guess.
+  silently lets every dependent task build on it. Stop when the defect
+  leaves every path forward a guess or a required stop gate applies; a
+  dependent task is not a way to reset the repair cap.
 
 Adjudicate only at the cap. Adjudicating earlier to end a loop is
 pre-judging with a different name. Every adjudication is a ledger entry —
@@ -449,12 +442,15 @@ The final whole-branch review gets a package too: run
 `scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
 printed path in the final review dispatch, so the final reviewer reads
-one file instead of re-deriving the branch diff with git commands. Dispatch
-on the most capable available model (see Model Selection), using
-superpowers:requesting-code-review's
-[code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
-the ledger's deferred-minor and parked lines so it can triage which must be
-fixed before merge.
+one file instead of re-deriving the branch diff with git commands. The
+controller fills superpowers:requesting-code-review's
+[code-reviewer.md](../requesting-code-review/code-reviewer.md) and dispatches
+it on the same parent model, foreground on Claude Code. The dispatch explicitly
+prohibits Skill invocation (including requesting-code-review), nested agents,
+workflow restart, and checkout/Git mutation. Point it at the ledger's
+deferred-minor and parked lines so it can triage which must be fixed before
+merge. The reviewer returns its report and stops; the controller owns the
+already-approved implementation's bounded repair wave.
 
 If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.
@@ -464,8 +460,9 @@ Then run exactly one scoped re-review of the fix wave
 (`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
 Adjudicate any residual findings as in the task loop's breaker: park with
-rulings, or rule on the load-bearing ones and ledger what you decided. Only
-the four classes above stop you here. There is no second fix wave —
+rulings, or rule on the load-bearing ones and ledger what you decided. The
+authorization, feasibility, and verification/budget boundaries above still
+apply. There is no second fix wave —
 residual load-bearing findings surface to your human partner when
 finishing-a-development-branch presents the options.
 
@@ -560,7 +557,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 ...
 
 [After all tasks]
-[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
+[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch read-only final code-reviewer, same parent model, foreground on Claude Code]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
 [Delete this plan's workspace — the record now lives in git]

@@ -10,26 +10,38 @@
 #   - >=2 Claude Code subagent dispatches via Agent or Task (drill only asserts >=1)
 #   - Claude Code task-tracking tool usage (drill makes no assertion)
 #   - test/math.test.js exists (drill relies on `npm test` succeeding)
-#   - analyze-token-usage.py token-budget telemetry
+#   - measured CLI total cost and usage (no hard-coded model pricing)
 # Kept until those assertions are added to drill or explicitly retired.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/test-helpers.sh"
 
+require_model_tests
+export CLAUDE_PROMPT_TIMEOUT="${CLAUDE_PROMPT_TIMEOUT:-1800}"
+export CLAUDE_MAX_CALLS="${CLAUDE_MAX_CALLS:-1}"
+export CLAUDE_MAX_BUDGET_USD="${CLAUDE_MAX_BUDGET_USD:-100}"
+export CLAUDE_OUTPUT_FORMAT=stream-json
+: "${CLAUDE_TEST_ARTIFACTS:?Set an external unique artifact directory}"
+if [ -e "$CLAUDE_TEST_ARTIFACTS/run-001" ]; then
+    printf 'ERROR: Integration requires a fresh CLAUDE_TEST_ARTIFACTS directory.\n' >&2
+    exit 2
+fi
+for tool in git node npm; do
+    command -v "$tool" >/dev/null || { printf 'ERROR: Missing %s; no installation attempted.\n' "$tool" >&2; exit 2; }
+done
+
 echo "========================================"
 echo " Integration Test: subagent-driven-development"
 echo "========================================"
 echo ""
-echo "This test executes a real plan using the skill and verifies:"
-echo "  1. Plan is read once (not per task)"
-echo "  2. Full task text provided to subagents"
-echo "  3. Subagents perform self-review"
-echo "  4. Spec compliance review before code quality"
-echo "  5. Review loops when issues found"
-echo "  6. Spec reviewer reads code independently"
+echo "This live test requests the SDD workflow and verifies:"
+echo "  1. Skill, subagent dispatch and task-tracking tool events"
+echo "  2. Working add/multiply implementation and tests"
+echo "  3. Per-task fixture commits and measured CLI cost"
+echo "Review ordering, self-review, and plan-read counts are not automatically graded."
 echo ""
-echo "WARNING: This test may take 10-30 minutes to complete."
+echo "Limits: 1 top-level call, ${CLAUDE_PROMPT_TIMEOUT}s, USD ${CLAUDE_MAX_BUDGET_USD}, 0 retries."
 echo ""
 
 # Create test project
@@ -37,7 +49,7 @@ TEST_PROJECT=$(create_test_project)
 echo "Test project: $TEST_PROJECT"
 
 # Trap to cleanup
-trap "cleanup_test_project $TEST_PROJECT" EXIT
+trap 'cleanup_test_project "$TEST_PROJECT"' EXIT
 
 # Set up minimal Node.js project
 cd "$TEST_PROJECT"
@@ -126,76 +138,33 @@ echo ""
 echo "Project setup complete. Starting execution..."
 echo ""
 
-# Run Claude with subagent-driven-development
-# Capture full output to analyze
-OUTPUT_FILE="$TEST_PROJECT/claude-output.txt"
-
-# Create prompt file
-cat > "$TEST_PROJECT/prompt.txt" <<'EOF'
-I want you to execute the implementation plan at docs/superpowers/plans/implementation-plan.md using the subagent-driven-development skill.
-
-IMPORTANT: Follow the skill exactly. I will be verifying that you:
-1. Read the plan once at the beginning
-2. Provide full task text to subagents (don't make them read files)
-3. Ensure subagents do self-review before reporting
-4. Run spec compliance review before code quality review
-5. Use review loops when issues are found
-
-Begin now. Execute the plan.
-EOF
-
-# Note: We use a longer timeout since this is integration testing
-# Use --allowed-tools to enable tool usage in headless mode
+# The controller may write a complete per-task brief for each implementer to read.
+# That file is distinct from the full controller-owned implementation plan.
 PROMPT="Execute the implementation plan at docs/superpowers/plans/implementation-plan.md using the subagent-driven-development skill.
 
-IMPORTANT: Follow the skill exactly. I will be verifying that you:
-1. Read the plan once at the beginning
-2. Provide full task text to subagents (don't make them read files)
-3. Ensure subagents do self-review before reporting
-4. Run spec compliance review before code quality review
-5. Use review loops when issues are found
+Follow the skill's workflow:
+1. Read the full plan once at the beginning as controller.
+2. Provide complete task context in a per-task brief; subagents may read their task brief file, not the full plan.
+3. Ensure subagents self-review before reporting.
+4. Run spec compliance review before code quality review.
+5. Use bounded review loops when issues are found.
 
+This is an authorized disposable fixture. Keep implementation in the current fixture checkout. Per-task fixture commits are authorized; do not push, install dependencies, or edit any source outside this fixture.
 Begin now. Execute the plan."
 
-PLUGIN_DIR=$(cd "$SCRIPT_DIR/../.." && pwd)
-
-# Run claude from inside the test project so its session JSONL lands in a
-# project-specific directory under ~/.claude/projects/, isolated from any
-# other concurrent claude sessions.
-echo "Running Claude (plugin-dir: $PLUGIN_DIR, cwd: $TEST_PROJECT)..."
-echo "================================================================================"
-cd "$TEST_PROJECT" && timeout 1800 claude -p "$PROMPT" --plugin-dir "$PLUGIN_DIR" --allowed-tools=all --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || {
-    echo ""
-    echo "================================================================================"
-    echo "EXECUTION FAILED (exit code: $?)"
-    exit 1
-}
-echo "================================================================================"
-
-echo ""
-echo "Execution complete. Analyzing results..."
-echo ""
-
-# Find the session transcript. Because we ran claude from $TEST_PROJECT (a
-# unique tmp dir), its sessions live in their own ~/.claude/projects/ folder
-# and we can pick the most-recent one without racing other concurrent sessions.
-# Resolve the real path because macOS mktemp returns /var/... but claude
-# normalizes it to /private/var/... when naming the project dir.
-TEST_PROJECT_REAL=$(cd "$TEST_PROJECT" && pwd -P)
-# Claude normalizes the cwd to a directory name by replacing every non-alphanumeric
-# character with `-` (so `_`, `.`, `/` all become `-`).
-SESSION_DIR="$HOME/.claude/projects/$(echo "$TEST_PROJECT_REAL" | sed 's|[^a-zA-Z0-9]|-|g')"
-# `|| true` prevents pipefail killing the script if ls gets SIGPIPE'd by head.
-SESSION_FILE=$(ls -t "$SESSION_DIR"/*.jsonl 2>/dev/null | head -1 || true)
-
-if [ -z "$SESSION_FILE" ]; then
-    echo "ERROR: Could not find session transcript file"
-    echo "Looked in: $SESSION_DIR"
-    exit 1
+printf 'Running Claude (plugin-dir: %s, cwd: %s)...\n' "${PLUGIN_DIR:-$CLAUDE_TEST_REPO_ROOT}" "$TEST_PROJECT"
+status=0
+run_claude "$PROMPT" "$CLAUDE_PROMPT_TIMEOUT" all > /dev/null || status=$?
+OUTPUT_FILE="$CLAUDE_TEST_ARTIFACTS/run-001/stdout.txt"
+PROVENANCE_FILE="$CLAUDE_TEST_ARTIFACTS/run-001/provenance.json"
+if [ "$status" -ne 0 ]; then
+    printf 'EXECUTION FAILED (exit code: %s); artifacts: %s\n' "$status" "$CLAUDE_TEST_ARTIFACTS" >&2
+    exit "$status"
 fi
-
-echo "Analyzing session transcript: $(basename "$SESSION_FILE")"
-echo ""
+# The exact call's stream is sufficient for tool events. Native child transcripts
+# remain under run-001/config/projects/ for separate route/workflow inspection.
+SESSION_FILE="$OUTPUT_FILE"
+printf '\nExecution complete. Analyzing %s\n\n' "$SESSION_FILE"
 
 # Verification tests
 FAILED=0
@@ -203,34 +172,37 @@ FAILED=0
 echo "=== Verification Tests ==="
 echo ""
 
-# Test 1: Skill was invoked
-echo "Test 1: Skill tool invoked..."
-if grep -q '"name":"Skill".*"skill":"superpowers:subagent-driven-development"' "$SESSION_FILE"; then
-    echo "  [PASS] subagent-driven-development skill was invoked"
-else
-    echo "  [FAIL] Skill was not invoked"
-    FAILED=$((FAILED + 1))
-fi
-echo ""
+# Parse structured events, not whitespace-sensitive JSON greps or line counts.
+if claude_test_python - "$SESSION_FILE" "$PROVENANCE_FILE" <<'PY'
+import json
+import pathlib
+import sys
 
-# Test 2: Subagents were used (Agent / Task tool — name varies by harness version)
-echo "Test 2: Subagents dispatched..."
-task_count=$(grep -cE '"name":"(Agent|Task)"' "$SESSION_FILE" || echo "0")
-if [ "$task_count" -ge 2 ]; then
-    echo "  [PASS] $task_count subagents dispatched"
+calls = []
+for line in pathlib.Path(sys.argv[1]).read_text(encoding='utf-8').splitlines():
+    event = json.loads(line)
+    if event.get('type') == 'assistant':
+        calls.extend(block for block in event.get('message', {}).get('content', []) if block.get('type') == 'tool_use')
+checks = [
+    ('SDD skill invoked', any(c.get('name') == 'Skill' and c.get('input', {}).get('skill') == 'superpowers:subagent-driven-development' for c in calls)),
+    ('At least two subagents dispatched', sum(c.get('name') in {'Agent', 'Task'} for c in calls) >= 2),
+    ('Task tracking used', any(c.get('name') in {'TodoWrite', 'TaskCreate', 'TaskUpdate', 'TaskList', 'TaskGet'} for c in calls)),
+]
+p = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding='utf-8'))
+result = p['observed']['result'] or {}
+checks.append(('CLI completed successfully', result.get('subtype') == 'success' and not result.get('is_error', False)))
+cost = result.get('total_cost_usd')
+checks.append(('Measured cost within requested cap', isinstance(cost, (int, float)) and 0 <= cost <= p['requested']['max_budget_usd']))
+for name, passed in checks:
+    print(f"  [{'PASS' if passed else 'FAIL'}] {name}")
+print(f"CLI reported total cost (including nested work): {cost if cost is not None else 'NOT_VERIFIED'} USD")
+print('CLI reported usage:', json.dumps(result.get('usage')))
+print('CLI reported modelUsage (not child route proof):', json.dumps(result.get('modelUsage')))
+sys.exit(not all(passed for _, passed in checks))
+PY
+then
+    :
 else
-    echo "  [FAIL] Only $task_count subagent(s) dispatched (expected >= 2)"
-    FAILED=$((FAILED + 1))
-fi
-echo ""
-
-# Test 3: Claude Code task-tracking tool was used
-echo "Test 3: Task tracking..."
-todo_count=$(grep -cE '"name":"(TodoWrite|TaskCreate|TaskUpdate|TaskList|TaskGet)"' "$SESSION_FILE" || echo "0")
-if [ "$todo_count" -ge 1 ]; then
-    echo "  [PASS] Task tracking used $todo_count time(s)"
-else
-    echo "  [FAIL] No Claude Code task-tracking tool used"
     FAILED=$((FAILED + 1))
 fi
 echo ""
@@ -266,11 +238,11 @@ else
 fi
 
 # Try running tests
-if cd "$TEST_PROJECT" && npm test > test-output.txt 2>&1; then
+if (cd "$TEST_PROJECT" && timeout --kill-after=5 60 npm test) > "$CLAUDE_TEST_ARTIFACTS/test-output.txt" 2>&1; then
     echo "  [PASS] Tests pass"
 else
     echo "  [FAIL] Tests failed"
-    cat test-output.txt
+    cat "$CLAUDE_TEST_ARTIFACTS/test-output.txt"
     FAILED=$((FAILED + 1))
 fi
 echo ""
@@ -296,14 +268,6 @@ else
 fi
 echo ""
 
-# Token Usage Analysis
-echo "========================================="
-echo " Token Usage Analysis"
-echo "========================================="
-echo ""
-python3 "$SCRIPT_DIR/analyze-token-usage.py" "$SESSION_FILE"
-echo ""
-
 # Summary
 echo "========================================"
 echo " Test Summary"
@@ -314,13 +278,9 @@ if [ $FAILED -eq 0 ]; then
     echo "STATUS: PASSED"
     echo "All verification tests passed!"
     echo ""
-    echo "The subagent-driven-development skill correctly:"
-    echo "  ✓ Reads plan once at start"
-    echo "  ✓ Provides full task text to subagents"
-    echo "  ✓ Enforces self-review"
-    echo "  ✓ Runs spec compliance before code quality"
-    echo "  ✓ Spec reviewer verifies independently"
-    echo "  ✓ Produces working implementation"
+    echo "Verified tool events, working implementation, fixture commits and bounded measured cost."
+    echo "Review order, plan-read count, self-review and actual child routing need separate trace review."
+    echo "Artifacts retained at: $CLAUDE_TEST_ARTIFACTS"
     exit 0
 else
     echo "STATUS: FAILED"

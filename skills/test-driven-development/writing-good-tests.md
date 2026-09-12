@@ -19,9 +19,9 @@ a mock when the real dependency proves slow or external.
 
 ## Principle 1: Name the Break
 
-Before writing the test body, answer: **what production change should
-make this test fail — and is that change a bug or a decision?** A test
-earns its place by catching a wrong branch, missing side effect, wrong
+Before writing the test body, answer: **what behavior or mechanical-contract
+defect should make this test fail — and is that change a bug or a decision?**
+A test earns its place by catching a wrong branch, missing side effect, wrong
 argument, boundary case, or broken contract.
 
 **Derive expectations independently.** Use literals and hand-checked
@@ -44,12 +44,14 @@ on redesign and sleeps through bugs. Test the behavior that depends on
 the decision: not `expect(MAX_RETRIES).toBe(5)` but "a failing call is
 retried 5 times and the 6th attempt never happens."
 
-**Behavior, not text.** Asserting that a script, skill, or config
-contains an exact line proves only that the source is the source. Run
-scripts against controlled inputs and assert outputs, side effects, or
-exit codes. Documents that instruct agents are tested by the consuming
-agent's behavior (superpowers:writing-skills); prose for humans earns no
-test at all.
+**Evidence must match the claim.** Run scripts against controlled inputs
+and assert outputs, side effects, or exit codes. For a named mechanical
+instruction contract, a deterministic fixture or static assertion can catch
+contradictory requirements, a missing budget prerequisite, or a broken link.
+A static contract check does not prove consuming-agent behavior. Use
+superpowers:writing-skills and its validation tiers for that claim; do not
+launch a model merely because a test touches documentation. Exact wording
+or human prose without a named contract earns no change-detector test.
 
 **Your code, not the framework.** Test the contract your code makes at
 its boundaries — the route you register, the query you emit, the payload
@@ -66,10 +68,11 @@ otherwise assert the first consumer-visible result that depends on them.
 
 ```
 BEFORE writing the test body:
-  Name the production change that would make this test fail.
+  Name the behavior or mechanical-contract defect this test catches.
 
   Cannot name one            → redesign around an observable behavior
-  "The source text changed"  → run the artifact and assert its effects
+  "The source text changed"  → name a mechanical contract or run its consumer;
+                               do not infer behavior from a static check
   Only intentional decisions → change detector; test the behavior
                                that depends on the decision
 
@@ -149,15 +152,16 @@ BEFORE adding a mock or test helper:
 
 ## Tests Ship With the Implementation
 
-The TDD cycle — failing test, minimal implementation, refactor — is what
-"complete" means. Ship the tests the behavior needs and only those:
-trivial code and human prose earn none, and a test written to satisfy
-process costs maintenance forever.
+For production changes, completion includes the needed failing regression
+proof, minimal implementation, and verification. A test-only correction ships
+focused evidence for its named contract without rewriting correct production
+code. Keep only tests that protect a behavior or mechanical contract; tests
+written solely to satisfy process cost maintenance forever.
 
 ## The Mutation Check
 
-Before finishing, mentally mutate the production code; at least one test
-should fail for each realistic mutation:
+Before finishing, mentally mutate the behavior or named contract; at least one
+test should fail for each relevant defect. For production behavior, consider:
 
 - Wrong constant or argument
 - Wrong branch handler
@@ -172,9 +176,9 @@ test as tautological.
 
 | When you... | Do |
 |-------------|-----|
-| Write any test | Name the break it catches — a bug, not a decision |
+| Write any test | Name the behavior or mechanical-contract defect it catches |
 | Build an expected value | Derive it by hand; never with the code under test |
-| Test a script or document | Run it / pressure-test its consumer; never grep its text |
+| Test a script or document | Run the consumer for behavior claims; use static assertions only for named mechanical contracts |
 | Reach for a dependency test | Test your boundary contract, not their documented mechanics |
 | Want to assert on a mocked element | Test the real component, or unmock it |
 | Are about to mock a method | Learn its side effects; mock the slow/external level |
@@ -189,7 +193,7 @@ test as tautological.
 - The test can fail only through a panic, crash, or missing selector
 - The test fails on every intentional change, never on accidental breakage
 - Expected values are hidden behind loops, builders, or helpers
-- The test greps source text, or asserts a removed symbol stays removed
+- A text assertion has no named mechanical contract, or is claimed as proof of agent behavior
 - The test would still matter if only the framework remained
 - The test exists for coverage, checking no side effect or outcome
 - An assertion checks a `*-mock` test ID, or fails if you remove the mock

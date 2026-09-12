@@ -92,12 +92,15 @@ If you are not sure whether your integration loads the bootstrap at session star
 
 ## Skill Changes Require Evaluation
 
-Skills are not prose — they are code that shapes agent behavior. If you modify skill content:
+Skills shape agent behavior. For new skills or changes to discovery, routing, required process, authority, or escalation, use `superpowers:writing-skills` and its [Validation Tiers](skills/writing-skills/SKILL.md#validation-tiers):
 
-- Use `superpowers:writing-skills` to develop and test changes
-- Run adversarial pressure testing across multiple sessions
-- Show before/after eval results in your PR
-- Do not modify carefully-tuned content (Red Flags tables, rationalization lists, "human partner" language) without evidence the change is an improvement
+- **Focused** is the default local fixture/contract proof, not evidence of agent behavior.
+- **Targeted Behavior** before/after real-agent evidence is required before claiming behavior validated. Without it, report behavior NOT_VERIFIED.
+- **Full Pressure** is a separate explicit choice for pressure/variance claims, not an automatic response to a failed test.
+
+All live evaluation requires explicit authorization and the fixed budget defined there. The coordinator owns that budget; a worker, checklist, or eval harness cannot authorize more runs. Report before/after evidence only for scenarios actually run, and do not make live evaluations CI or default verification. Carefully-tuned content still needs evidence proportional to the claim.
+
+Test/fixture/harness, generated/meta, and format-only documentation corrections use focused local verification. If wording may change behavior, classify it as behavior-shaping.
 
 ## Eval harness
 

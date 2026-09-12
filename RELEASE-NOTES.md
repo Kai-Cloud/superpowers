@@ -1,5 +1,39 @@
 # Superpowers Release Notes
 
+## v6.3.5 — fork candidate (2026-09-12)
+
+### Bounded workflow and dispatch contracts
+
+- Selectively restore bounded repository navigation, evidence-driven scope
+  changes, standalone audit termination, and proportional verification from the
+  separate 6.3.2 fork line; do not revert the 6.3.4 compatibility fixes.
+- Preserve one parent-selected model lane across workers and reviewers. Remove
+  contradictory model-tier and stronger-model escalation instructions; document
+  harness-specific inheritance and foreground/asynchronous completion behavior.
+- Keep explicit inline execution inline and assign finite model-validation work
+  to the coordinator, not nested implementer/reviewer agents.
+- Complete final-reviewer read-only, no-Skill, no-nested-agent boundaries while
+  retaining task briefs, review packages, the ledger, five repair rounds, and
+  the finite final-fix wave.
+
+### Test reliability
+
+- Pin test launches to the intended CLI and plugin checkout in isolated config,
+  with external source/provenance records and explicit live-call budgets.
+- Default to offline tests; separate model recall from deterministic checks.
+- Correct the brief-file oracle and normalize equivalent Git Bash workspace
+  paths. Keep release-version consistency separate from model-contract tests.
+- Add a registry-driven, standard-library version check and six bounded
+  before/after behavior probes with immutable attempts and honest unknowns.
+
+### Candidate scope
+
+This is not an automatic marketplace release. Existing 6.3.4 benchmark results
+are background evidence, not validation of this source snapshot. See
+[the audit disposition](docs/6.3.5-audit-disposition.md) for actual verification,
+source identities, and remaining limitations; no general efficiency or
+cross-harness runtime claim follows from static checks or a single smoke sample.
+
 ## v6.3.0 (2026-08-12)
 
 ### Harness Support

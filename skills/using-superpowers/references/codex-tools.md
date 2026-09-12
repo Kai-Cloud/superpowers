@@ -18,9 +18,10 @@ disagree.
   `spawn_agent {fork_turns: "none"}`; the default `"all"` copies your
   entire transcript into the child. On Codex 0.145+, role files under
   `~/.codex/agents/` attach to isolated forks via `agent_type`.
-  Full-history forks accept `model` and `reasoning_effort` overrides
-  (only `agent_type` is refused there) — isolated forks are the SDD
-  default for context hygiene, not because overrides require them.
+  Some tool versions expose `model` and `reasoning_effort` on full-history
+  forks (only `agent_type` is refused there). Supported fields do not
+  authorize changing the parent model. SDD uses isolated context for
+  hygiene; verify routing separately as described below.
 - **Fix rounds:** resume the implementer with `followup_task` — it
   delivers your message, triggers a turn, and transparently reloads a
   child the harness evicted. Never dispatch a fresh implementer on the
@@ -38,45 +39,50 @@ disagree.
 
 ## Waiting on children
 
-`wait_agent` is an event subscription, not a poll: a long wait wakes
-the moment a child produces mailbox activity, with the same latency as
-a short one. Short-timeout polling buys nothing and costs a tool call —
-and a context rebill — per poll. In measured sessions, roughly
-two-thirds of all wait calls were short polls that timed out.
+Codex's asynchronous adapter is not Claude Code's blocking foreground call.
+Do not copy `run_in_background` into `spawn_agent`.
 
-- While you still have local work, do not wait at all. A completed
-  child's final answer is pushed into your mailbox and arrives with
-  your next turn.
-- When you are genuinely idle with children outstanding, wait in
-  bounded stretches: `wait_agent` with `timeout_ms` 300000-600000
-  (5-10 minutes). After each stretch — wake or timeout — post one
-  status line, run `list_agents`, and chase any child that finished
-  without reporting. Never stack polls shorter than five minutes; the
-  event subscription wakes a bounded stretch just as fast as a short
-  one.
-- Completion mail cannot wake an idle controller (it is delivered
-  without triggering a turn); covering that idle window is
-  `wait_agent`'s only job. A stretch that times out with no activity
-  is your cue to reconcile, not to shorten the next stretch.
+When exposed by the current tool list, `wait_agent` is an event subscription,
+not a poll: a long wait wakes on child mailbox activity. Other versions use
+their documented completion/wait interface, not invented fields.
+
+- While independent local work remains, consume delivered completion events
+  and keep working. Do not duplicate a child's assignment or dispatch.
+- When genuinely idle, wait in bounded stretches within the tool's supported
+  timeout range (5-10 minutes where allowed). On completion or timeout,
+  reconcile outstanding children once and recover any completed report.
+  Never replace completion events with repeated short polls.
+- Record a finite task deadline before dispatch. If it expires without a
+  usable result, report BLOCKED and stop further dispatch. Do not renew
+  waits forever, fabricate the result, or replace a still-running child.
+- If the harness delivers mailbox messages without waking an idle controller,
+  the supported event wait covers that idle interval. If completion already
+  wakes the controller, use that notification rather than another wait loop.
 
 ## Model routing on spawns
 
-Every `spawn_agent` you issue — including when you are yourself a
-spawned child running a fan-out — sets `model` AND `reasoning_effort`
-explicitly, per the Model Selection rules of the skill you are
-executing. Setting `model` alone is a trap: the child's effort
-silently resets to that model's default, not to yours.
+For SDD and review dispatches, preserve the same effective parent model for
+implementers, task reviewers, re-reviewers, fix workers, and final reviewers.
+Worker/reviewer role restrictions still apply: this adapter does not authorize
+a spawned worker to start its own fan-out.
 
-Ask your human partner to add a machine-level backstop to
-`~/.codex/config.toml` so any spawn that slips through still routes to
-a deliberate tier instead of silently inheriting the session's most
-expensive model:
+Use the current harness's documented inheritance mechanism, or pass the same
+parent model explicitly only when the actual tool schema and spawn allowlist
+support it. Never infer an API from a different harness or invent a model ID.
+Where an explicit model resets effort, preserve the parent's effort using the
+supported field if available; otherwise report the limitation. Do not silently
+substitute a different model or effort as a fix for dispatch failure.
 
-```toml
-[agents]
-default_subagent_model = "<a mid-tier model from your spawn allowlist>"
-default_subagent_reasoning_effort = "medium"
-```
+Omitting `model` alone is not proof of inheritance. Role files, subagent
+defaults, and provider routing may change the effective child model. Check
+available runtime metadata against the effective parent route; when that
+cannot be confirmed, routing remains **unverified**, not passed or a proven
+mismatch. A required route-verification gate stops on missing evidence; do not
+launch extra probes outside the coordinator's finite validation budget.
+
+Do not change or prescribe global model/effort configuration as a backstop.
+Keep the parent's model intent at dispatch, using supported parameters only;
+configuration changes require a separate request from your human partner.
 
 ## Environment Detection
 
