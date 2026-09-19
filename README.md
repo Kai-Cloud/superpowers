@@ -30,28 +30,35 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.3.5 candidate
+## Fork 6.3.6
 
-This fork keeps the task brief, ledger, bounded repair loops, and scoped SDD
-reviews from 6.3.4 while restoring evidence-bounded navigation and proportional
-validation from the separate 6.3.2 customization line. Known local work stays
-local; explicit inline execution stays inline; independent audits report and
-stop. Worker model intent remains with the parent, using each harness's supported
-routing and completion mechanisms rather than selecting cheaper or stronger
-models inside a task.
+This release keeps the bounded navigation, task briefs, ledger, repair loops,
+scoped SDD reviews, and parent-selected execution/model lane from 6.3.5. It adds
+a shared bootstrap core, capability profiles, and a `task-execution` skill for
+work within an already-authorized implementation scope.
+
+For harnesses using `hooks/session-start`, `SUPERPOWERS_CAPABILITY_TIER` selects
+`compact`, `standard` (the default), or `complex`. Profiles adjust working depth,
+not permissions, approvals, or the parent's chosen workflow. Invalid values fall
+back to `standard` with a diagnostic; missing core/profile content is reported
+as degraded startup. This hook setting does not imply profile injection on
+harnesses that load skills through a different integration.
 
 Run local checks without invoking a model:
 
 ```bash
 bash tests/claude-code/run-offline-checks.sh
+python -B tests/hooks/test-capability-profiles.py
 ```
 
-Live recall, integration, and bounded behavior smoke require explicit opt-in,
-an external artifact directory, a pinned native CLI and plugin source, and
-finite call/time/cost budgets. Static tests do not prove runtime behavior.
-See [the 6.3.5 audit disposition](docs/6.3.5-audit-disposition.md) for validation
-and limitations. The independent marketplace pin and other devices are not
-updated by changing this candidate's version fields.
+Evaluation is limited and task-specific: no universal quality or efficiency
+guarantee follows from it. Offline checks cover infrastructure and instruction
+contracts, not agent behavior. Live tests require explicit opt-in, external
+artifacts, a pinned native CLI and plugin source, and finite call/time/cost
+budgets. See [the release notes](RELEASE-NOTES.md#v636--fork-release-2026-09-19)
+for scope; the [6.3.5 audit disposition](docs/6.3.5-audit-disposition.md) remains
+historical evidence, not validation of this release. Updating version fields
+does not itself update an independent marketplace pin or installed devices.
 
 ## How it works
 

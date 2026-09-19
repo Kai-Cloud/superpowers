@@ -7,8 +7,37 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Read using-superpowers content
-using_superpowers_content=$(cat "${PLUGIN_ROOT}/skills/using-superpowers/SKILL.md" 2>&1 || echo "Error reading using-superpowers skill")
+# Read only fixed local paths. Missing content is degraded startup, not success.
+core_path="${PLUGIN_ROOT}/skills/using-superpowers/SKILL.md"
+core_available=false
+if [[ -f "$core_path" && -r "$core_path" && -s "$core_path" ]] &&
+    using_superpowers_content=$(< "$core_path") && [[ -n "$using_superpowers_content" ]]; then
+    core_available=true
+else
+    using_superpowers_content="SUPERPOWERS_CORE_UNAVAILABLE: using-superpowers was not loaded. Restore skills/using-superpowers/SKILL.md before relying on the bootstrap."
+    printf '%s\n' "$using_superpowers_content" >&2
+fi
+
+# Explicit tiers only; never interpret or echo an untrusted environment value.
+profile_diagnostic=""
+case "${SUPERPOWERS_CAPABILITY_TIER:-standard}" in
+    compact) capability_tier=compact ;;
+    standard) capability_tier=standard ;;
+    complex) capability_tier=complex ;;
+    *)
+        capability_tier=standard
+        profile_diagnostic="SUPERPOWERS_INVALID_CAPABILITY_TIER: using standard."
+        printf '%s\n' "$profile_diagnostic" >&2
+        ;;
+esac
+profile_path="${PLUGIN_ROOT}/hooks/profiles/${capability_tier}.md"
+if [[ -f "$profile_path" && -r "$profile_path" && -s "$profile_path" ]] &&
+    profile_content=$(< "$profile_path") && [[ -n "$profile_content" ]]; then
+    :
+else
+    profile_content="SUPERPOWERS_PROFILE_UNAVAILABLE: ${capability_tier} profile was not loaded. Use the shared core only; restore hooks/profiles/${capability_tier}.md."
+    printf '%s\n' "$profile_content" >&2
+fi
 
 # Escape string for JSON embedding using bash parameter substitution.
 # Each ${s//old/new} is a single C-level pass - orders of magnitude
@@ -24,7 +53,14 @@ escape_for_json() {
 }
 
 using_superpowers_escaped=$(escape_for_json "$using_superpowers_content")
-session_context="<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**\n\n${using_superpowers_escaped}\n</EXTREMELY_IMPORTANT>"
+profile_escaped=$(escape_for_json "$profile_content")
+profile_diagnostic_escaped=$(escape_for_json "$profile_diagnostic")
+if [[ "$core_available" == true ]]; then
+    introduction="You have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'Skill' tool:**"
+else
+    introduction="Superpowers startup is degraded; the core skill is unavailable."
+fi
+session_context="<EXTREMELY_IMPORTANT>\n${introduction}\n\n${using_superpowers_escaped}\n\n${profile_diagnostic_escaped}\n${profile_escaped}\n</EXTREMELY_IMPORTANT>"
 
 # Output context injection as JSON.
 # Cursor hooks expect additional_context (snake_case).

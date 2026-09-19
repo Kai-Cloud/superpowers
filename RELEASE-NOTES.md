@@ -1,5 +1,38 @@
 # Superpowers Release Notes
 
+## v6.3.6 — fork release (2026-09-19)
+
+### Runtime profiles and task execution
+
+- Replace the session bootstrap with a shared goal/context/implementation/tests/
+  truthful-final core while preserving requested skills, parent workflow choices,
+  existing approvals, and subagent boundaries.
+- Add `compact`, `standard`, and `complex` profiles to `hooks/session-start`,
+  selected explicitly through `SUPERPOWERS_CAPABILITY_TIER`; unset or empty values
+  use `standard`. Invalid values fall back with a diagnostic, and missing core or
+  profile content produces explicit degraded-startup diagnostics. Profiles adjust
+  working depth, not authority, and are not model auto-detection.
+- Add `task-execution` for actual implementation within an authorized scope:
+  targeted context and proof, diagnosis before retries, no no-op progress claims,
+  and a truthful stop or handoff. It does not create a new approval chain or
+  replace an explicitly selected inline/SDD workflow.
+- Add offline hook-fixture and instruction-contract tests. Keep the tested
+  runtime source unchanged for publication and synchronize all nine registered
+  release manifests.
+
+### Evidence and limits
+
+Evaluation is limited and task-specific. Small, selected single-round experiments
+showed different outcomes across tested configurations; they do not establish a
+universal quality or efficiency benefit, statistical reliability, or cross-harness
+behavior. Effective backend reasoning effort was not independently verified.
+Offline infrastructure and instruction-contract checks are not real-agent proof.
+No new live model evaluation is part of this publication step.
+
+This release is an explicit publication decision, not a reclassification of an
+earlier `NOT_QUALIFIED` milestone. Historical candidate/audit findings remain
+historical; the release does not claim an old campaign passed.
+
 ## v6.3.5 — fork candidate (2026-09-12)
 
 ### Bounded workflow and dispatch contracts

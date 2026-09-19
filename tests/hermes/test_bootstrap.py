@@ -66,7 +66,7 @@ class TestBootstrapContent:
         # A distinctive line from the skill body proves the real SKILL.md was
         # embedded, not a stub.
         assert "You have superpowers" in content
-        assert "## The Rule" in content
+        assert "## Shared Core" in content
 
     def test_frontmatter_stripped(self):
         content = _bootstrap()

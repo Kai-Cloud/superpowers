@@ -7,48 +7,48 @@ description: Use when starting a conversation with Superpowers installed, or whe
 If you were dispatched as a subagent to execute a specific task, ignore this skill.
 </SUBAGENT-STOP>
 
-## Start With the Task Boundary
+## Shared Core
 
-**Invoke requested skills and follow them.** For other work, choose the smallest
-materially relevant skill before the action it governs:
+**Invoke requested skills and follow them.** Otherwise choose the smallest
+materially relevant skill before the action it governs; no mandatory skill chain.
 
-1. Name the requested behavior, symptom, or deliverable and its task boundary.
-2. Use the known entry/path and direct proof. If an existing repository's path,
-   owner, or contract is unknown, use `superpowers:codebase-navigation` to build
-   a bounded task map; known local files do not need another navigation pass.
-3. Select only the process needed now: design choices → brainstorming; a bug →
-   systematic-debugging; an approved multi-step deliverable → planning or the
-   execution mode explicitly selected by your human partner.
-4. Expand only when evidence identifies a named boundary that changes the
-   decision. New evidence can also narrow the scope and downgrade the process.
-   If evidence is missing, state `Unknown` and the next cheapest verification;
-   stop or hand off when that evidence is unavailable.
-5. Announce "Using [skill] to [purpose]" and follow the selected skill's checklist.
+1. **Goal:** Name the requested behavior, symptom, deliverable, task boundary,
+   and finish condition.
+2. **Target context:** Use known paths and direct proof. For an unknown entry,
+   owner, or contract, use `superpowers:codebase-navigation`. Respect the context
+   budget: retain a short evidence summary, avoid repeated full reads, and fetch
+   only missing context that changes the next decision.
+3. **Implementation:** Select only the process needed now: unresolved design
+   choices → brainstorming; bugs → systematic-debugging; approved work → the
+   explicitly selected execution mode. At an actual implementation boundary,
+   use `superpowers:task-execution` within that mode, not to replace it.
+   Existing approval remains valid within its scope; do not request it again.
+4. **Target tests:** Verify the named claim with focused evidence. Expand only
+   when evidence identifies a named boundary; evidence can also narrow scope
+   and downgrade process. For missing evidence, state `Unknown` and the next
+   cheapest verification; stop or hand off if unavailable.
+5. **Truthful final:** Report changes, actual test evidence, and remaining limits.
+   Stop when the finish condition is met; no further tools after done.
 
-Process skills set the approach before implementation skills when both apply.
-A hypothetical chance of relevance is not a reason to chain skills. Entering
-plan mode does not itself create a need for brainstorming; unresolved design
-choices do. Real feature design still needs your human partner's approval.
+Announce the selected skill and purpose. Process skills govern implementation
+skills; hypothetical relevance does not justify chaining them. Real feature
+design still needs approval, not a second approval for an unchanged approved task.
 
 ## Non-Escalating Work
 
-An audit, read-only investigation, explanation, or known local correction to
-tests, fixtures, assertions, harnesses, metadata, or non-behavioral documentation
-ends with an evidence report or focused proof. It is not an implementation-plan
-workflow. Do the authorized inspection/correction, verify its named claim, and
-stop rather than starting a design, worktree, execution, or integration ceremony.
+An audit, read-only investigation, explanation, or local correction to tests,
+fixtures, assertions, harnesses, metadata, or non-behavioral documentation ends
+with an evidence report or focused proof. It is not an implementation-plan workflow.
+New production, public contract, routing, or authority scope requires the needed
+approval before expansion. Uncertainty is not authorization.
 
-If evidence instead establishes a production behavior, public contract, routing,
-or authority change, explain that new boundary and obtain the needed approval
-before expanding the task. Uncertainty alone does not authorize expansion.
-A plan, available tools, or a manifest is not consent to create branches or
-worktrees, install dependencies, or run broad/model tests; use task-scoped
-user/project authorization for preparation and verification.
+A plan, tools, or manifest does not authorize branches, worktrees, dependencies,
+broad/model tests, review, or deployment. A capability profile adjusts working
+depth only, never tool permissions or parent workflow selection.
 
 ## Platform Adaptation
 
-If your harness appears here, read its reference file for special instructions:
-
+Read only the applicable harness reference:
 - Codex: `references/codex-tools.md`
 - Pi: `references/pi-tools.md`
 - Antigravity: `references/antigravity-tools.md`
@@ -56,8 +56,7 @@ If your harness appears here, read its reference file for special instructions:
 
 ## User Instructions
 
-User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take
-precedence over skills, which in turn override default behavior. A clear task
-boundary, proof method, or contrary process instruction can narrow or skip an
-otherwise applicable workflow. Skills never override safety, authorization, or
-deployment constraints, and invoking one does not authorize unrelated work.
+User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, direct requests) take precedence
+over skills, which override default behavior. A clear task boundary or proof
+method can narrow or skip a workflow. Skills never override safety,
+authorization, or deployment constraints; invocation grants no unrelated scope.
