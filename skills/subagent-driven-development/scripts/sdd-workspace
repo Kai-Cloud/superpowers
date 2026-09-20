@@ -1,40 +1,72 @@
 #!/usr/bin/env bash
-# Resolve and ensure the working-tree directory SDD uses for one plan's
-# short-lived artifacts: task briefs, implementer reports, review packages,
-# and the progress ledger. Print the plan directory's absolute path.
-#
-# One directory per plan (.superpowers/sdd/<plan-basename>/) so a follow-up
-# plan in the same working tree can never read or overwrite another plan's
-# artifacts. A stale ledger misread as current progress makes controllers
-# skip whole task sequences — plan-scoping removes that failure structurally.
-#
-# The workspace lives in the working tree (not under .git/) because Claude Code
-# treats .git/ as a protected path and denies agent writes there — which blocks
-# an implementer subagent from writing its report file. A self-ignoring
-# .gitignore at .superpowers/sdd/ keeps every plan's workspace out of
-# `git status` and out of accidental commits without modifying any tracked file.
-#
-# Single source of truth for the workspace location, so task-brief and
-# review-package cannot drift to different directories.
-#
-# Usage: sdd-workspace PLAN_FILE
+# Shared, self-ignoring per-plan workspace. Unknown legacy artifacts are never
+# claimed. Source this file for the same read-only identity/ownership checks.
 set -euo pipefail
 
-if [ $# -ne 1 ]; then
-  echo "usage: sdd-workspace PLAN_FILE" >&2
-  exit 2
+sp_error() { printf '%s\n' "$*" >&2; return 2; }
+sp_path() {
+  local p=$1
+  if command -v cygpath >/dev/null 2>&1; then p=$(cygpath -u "$p"); fi
+  [ -f "$p" ] || { sp_error "no such plan file: $p"; return; }
+  if [ -L "$p" ]; then p=$(readlink -f "$p"); fi
+  p="$(cd -- "$(dirname -- "$p")" && pwd -P)/$(basename -- "$p")"
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -am "$p" | tr '[:upper:]' '[:lower:]'
+  else printf '%s\n' "$p"; fi
+}
+sp_owner_matches() {
+  local recorded=$1 actual
+  actual=$(cd "$root" && sp_path "$recorded" 2>/dev/null) || return 1
+  [ "$actual" = "$plan_id" ]
+}
+sp_check_dir() {
+  local d=$1 first
+  [ ! -L "$d" ] || { sp_error "symlink workspace refused: $d"; return; }
+  if [ -e "$d/plan-path" ]; then
+    [ ! -L "$d/plan-path" ] || return 2
+    sp_owner_matches "$(cat "$d/plan-path")" || return 1
+  elif [ -e "$d" ]; then
+    [ -f "$d/progress.md" ] || { sp_error "unknown workspace ownership: $d"; return; }
+    IFS= read -r first < "$d/progress.md" || true
+    [[ "$first" == '# SDD ledger — plan: '* ]] && sp_owner_matches "${first#*plan: }" \
+      || { sp_error "unknown or foreign legacy ledger: $d"; return; }
+  fi
+  if [ -e "$d/progress.md" ]; then
+    [ ! -L "$d/progress.md" ] || return 2
+    IFS= read -r first < "$d/progress.md" || true
+    [[ "$first" == '# SDD ledger — plan: '* ]] && sp_owner_matches "${first#*plan: }" \
+      || { sp_error "foreign ledger: $d"; return; }
+  fi
+}
+sp_resolve() {
+  plan=$1
+  plan_id=$(sp_path "$plan") || return
+  root=$(git rev-parse --show-toplevel) || return
+  root=$(cd "$root" && pwd -P)
+  ws_base="$root/.superpowers/sdd"
+  [ ! -L "$root/.superpowers" ] && [ ! -L "$ws_base" ] || { sp_error 'symlink workspace root refused'; return; }
+  slug=$(basename "$plan_id" .md)
+  [[ "$slug" != . && "$slug" != .. && -n "$slug" ]] || return 2
+  dir="$ws_base/$slug"
+  local rc=0
+  sp_check_dir "$dir" || rc=$?
+  if [ "$rc" = 1 ]; then
+    dir="$ws_base/$slug-$(printf '%s' "$plan_id" | git hash-object --stdin)"
+    sp_check_dir "$dir" || { sp_error "workspace collision or unknown ownership: $dir"; return; }
+  elif [ "$rc" != 0 ]; then return "$rc"; fi
+  if [ -e "$ws_base/.gitignore" ]; then
+    [ ! -L "$ws_base/.gitignore" ] && [ "$(cat "$ws_base/.gitignore")" = '*' ] \
+      || { sp_error 'existing workspace ignore file is not owned; leave it unchanged'; return; }
+  fi
+}
+sp_ensure() {
+  mkdir -p "$dir"
+  [ -e "$ws_base/.gitignore" ] || printf '*\n' > "$ws_base/.gitignore"
+  [ -e "$dir/plan-path" ] || printf '%s\n' "$plan_id" > "$dir/plan-path"
+}
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  [ $# = 1 ] || { sp_error 'usage: sdd-workspace PLAN_FILE'; exit 2; }
+  sp_resolve "$1"
+  sp_ensure
+  printf '%s\n' "$dir"
 fi
-
-plan=$1
-[ -f "$plan" ] || { echo "no such plan file: $plan" >&2; exit 2; }
-
-slug=$(basename "$plan" .md)
-[ -n "$slug" ] && [ "$slug" != "." ] && [ "$slug" != ".." ] \
-  || { echo "cannot derive a workspace name from: $plan" >&2; exit 2; }
-
-root=$(git rev-parse --show-toplevel)
-base="$root/.superpowers/sdd"
-dir="$base/$slug"
-mkdir -p "$dir"
-printf '*\n' > "$base/.gitignore"
-cd "$dir" && pwd

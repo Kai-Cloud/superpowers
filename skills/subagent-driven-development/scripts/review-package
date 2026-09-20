@@ -19,13 +19,17 @@ base=$2
 head=$3
 [ -f "$plan" ] || { echo "no such plan file: $plan" >&2; exit 2; }
 
-git rev-parse --verify --quiet "$base" >/dev/null || { echo "bad BASE: $base" >&2; exit 2; }
-git rev-parse --verify --quiet "$head" >/dev/null || { echo "bad HEAD: $head" >&2; exit 2; }
+base=$(git rev-parse --verify --quiet --end-of-options "${base}^{commit}") || { echo "bad BASE" >&2; exit 2; }
+head=$(git rev-parse --verify --quiet --end-of-options "${head}^{commit}") || { echo "bad HEAD" >&2; exit 2; }
+git merge-base --is-ancestor "$base" "$head" || { echo "HEAD is not a descendant of BASE" >&2; exit 3; }
+[ "$(git rev-list --count "$base..$head")" -gt 0 ] || { echo "empty commit range" >&2; exit 3; }
+source "$(cd "$(dirname "$0")" && pwd)/sdd-workspace"
+sp_resolve "$plan"
 
 if [ $# -eq 4 ]; then
   out=$4
 else
-  dir=$("$(cd "$(dirname "$0")" && pwd)/sdd-workspace" "$plan")
+  dir=$(bash "$(cd "$(dirname "$0")" && pwd)/sdd-workspace" "$plan")
   out="$dir/review-$(git rev-parse --short "$base")..$(git rev-parse --short "$head").diff"
 fi
 

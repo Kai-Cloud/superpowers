@@ -151,6 +151,16 @@ class DispatchContracts(unittest.TestCase):
                      r"(?:model|behavior).{0,100}(?:validation|smoke|test).{0,160}(?:finite|bounded|budget)",
                      "model validation has a finite budget")
 
+    def test_native_file_plan_evidence_is_bounded(self):
+        for pattern, contract in (
+            (r"scripts/task-start", "file plans use start evidence"),
+            (r"scripts/task-done", "file plans use done evidence"),
+            (r"without a plan file", "conversational inline remains valid"),
+            (r"no commit.{0,90}required|commit.{0,50}not required", "no forced commit"),
+            (r"stale.{0,120}(?:stop|reconcile)|reconcile.{0,100}stale", "stale proof is not blindly reused"),
+        ):
+            self.require(INLINE, pattern, contract)
+
     def test_existing_brief_ledger_and_repair_limits_remain(self):
         for pattern, contract in (
             (r"scripts/task-brief", "brief extraction remains"),

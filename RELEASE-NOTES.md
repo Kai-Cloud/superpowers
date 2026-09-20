@@ -1,5 +1,28 @@
 # Superpowers Release Notes
 
+## v6.4.1 — fork development candidate (2026-09-20)
+
+- Canonical plan ownership isolates basename collisions; only matching existing
+  legacy ledgers may be adopted. Unknown/foreign evidence is preserved.
+- Review packages validate commit type, ancestry and nonempty ranges before
+  output. Helper invocation uses bash when executable bits are unavailable.
+- Native file-plan inline execution shares the existing workspace/progress ledger:
+  task-start records base/brief; task-done validates before explicit argv execution,
+  preserves unique failure logs, accepts silent success and uncommitted work, and
+  refuses stale completion reuse. No forced commit, review, worktree or model switch.
+- Nine registry version fields identify this development candidate. The external
+  kai-plugins marketplace continues to select the stable 6.3.6 commit.
+
+Focused offline fixtures and a bounded Astra Low comparison are complete. Golden
+v3 and the inline case passed; the recovery case's original checker rejected an
+unspecified log-field spelling and redirected failure evidence. A corrected,
+versioned checker accepted both saved artifacts offline; the original failures
+remain preserved and are not new live passes. The common-success comparison
+showed increased time and token use within its predeclared tolerance, not an
+efficiency benefit. This candidate is pushed for continued development, not a
+universal no-regression claim or marketplace rollout. See
+[adoption and limits](docs/6.4.1-adoption.md).
+
 ## v6.3.6 — fork release (2026-09-19)
 
 ### Runtime profiles and task execution

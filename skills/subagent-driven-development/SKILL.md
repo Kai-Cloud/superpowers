@@ -122,10 +122,13 @@ sequences — the single most expensive failure observed. Track progress in
 a ledger file, not only in todos.
 
 - Each plan owns a workspace: at skill start, run this skill's
-  `scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
-  directory (`<repo-root>/.superpowers/sdd/<plan-basename>/`), home to
-  every artifact for THIS plan: ledger, briefs, reports, review packages.
-  Another plan's directory is never yours to read or write.
+  `bash scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
+  directory (`<repo-root>/.superpowers/sdd/<plan-basename>/`, with an identity
+  suffix on basename collisions), home to every artifact for THIS plan.
+  Canonical physical plan identity is recorded in `plan-path`; alternate path
+  spellings share ownership. Legacy directories are reused only with an existing
+  matching ledger, never by claiming unknown artifacts. Ownership errors stop
+  before writes. Another plan's directory is never yours to read or write.
 - Check for this plan's ledger at `<workspace>/progress.md`. If its first
   line names your plan file, tasks with a `Task <N>: complete` line are DONE
   — do not re-dispatch them; resume at the first task without one. A task
@@ -134,7 +137,11 @@ a ledger file, not only in todos.
   ledger at the old flat path `.superpowers/sdd/progress.md` — is another
   plan's progress: leave it in place and start your own, fresh.
 - Create the ledger with its identity as the first line:
-  `# SDD ledger — plan: <plan file path>`.
+  `# SDD ledger — plan: <canonical path from plan-path>`.
+- Invoke the helper scripts through `bash`, including after package extraction
+  that loses executable bits. Review packages require a nonempty ancestor commit
+  range before any output is created; real commits with zero net diff are valid.
+  No commits means no commit-range package, not permission to auto-commit.
 - The ledger is your recovery map: the commits it names exist in git even
   when your context no longer remembers creating them. After compaction,
   trust the ledger and `git log` over your own recollection.

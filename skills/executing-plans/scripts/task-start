@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Native inline evidence helpers share the SDD workspace and progress.md.
+# No plan command is evaluated. Source this file from task-done.
+set -euo pipefail
+native_here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+sdd=$(cd "$native_here/../../subagent-driven-development/scripts" && pwd)
+source "$sdd/sdd-workspace"
+
+native_checkout() {
+  # Include index, tracked dirty content and nonignored untracked bytes, not
+  # merely HEAD or porcelain filenames. Workspace artifacts are self-ignored.
+  (
+    cd "$root"
+    git rev-parse HEAD
+    git diff --binary HEAD --
+    git diff --cached --binary --
+    while IFS= read -r -d '' f; do
+      printf '%s\0' "$f"
+      if [ -L "$f" ]; then readlink "$f"
+      elif [ -f "$f" ]; then git hash-object --no-filters -- "$f"
+      elif [ -d "$f" ]; then echo 'unsupported nested checkout' >&2; exit 2
+      else printf 'missing\n'; fi
+    done < <(git ls-files --cached --others --exclude-standard -z)
+  ) | git hash-object --stdin
+}
+native_validate() {
+  plan=$1; n=$2
+  [[ "$n" =~ ^[1-9][0-9]*$ ]] || { sp_error 'invalid task number'; return; }
+  sp_resolve "$plan"
+  # Read-only task validation before ownership creation or any command.
+  task_text=$(awk -v n="$n" '
+    /^```/ { fence = !fence }
+    !fence && /^#+[ \t]+Task[ \t]+[0-9]+/ { active=($0 ~ ("^#+[ \t]+Task[ \t]+" n "([^0-9]|$)")) }
+    active { print }
+  ' "$plan")
+  [ -n "$task_text" ] || { sp_error "task $n not found"; return; }
+  head=$(git rev-parse --verify HEAD)
+  plan_hash=$(git hash-object --no-filters -- "$plan")
+  ledger="$dir/progress.md"
+  record=''
+  if [ -f "$ledger" ]; then
+    record=$(awk -F '\t' -v n="$n" '$1=="Native" && $2==n { last=$0 } END { print last }' "$ledger")
+    if [ -z "$record" ] && grep -q "^Task $n: complete" "$ledger"; then
+      sp_error 'legacy completion has no Native proof; reconcile evidence, do not rerun for bookkeeping'; return
+    fi
+  fi
+}
+native_unpack() {
+  IFS=$'\t' read -r tag task state saved_base saved_plan saved_checkout saved_log saved_log_hash <<< "$record"
+}
+native_reuse() {
+  native_unpack
+  [ "$saved_plan" = "$plan_hash" ] && [ "$saved_checkout" = "$(native_checkout)" ] \
+    && [[ "$saved_log" =~ ^task-[0-9]+-tests-[A-Za-z0-9]+\.log$ ]] \
+    && [ -f "$dir/$saved_log" ] && [ ! -L "$dir/$saved_log" ] \
+    && [ "$saved_log_hash" = "$(git hash-object --no-filters -- "$dir/$saved_log")" ] \
+    || { sp_error 'stale completion evidence; reconcile changed scope/proof, do not automatically rerun'; return; }
+  printf 'status: complete\nworkspace: %s\nbase: %s\n' "$dir" "$saved_base"
+}
+native_start() {
+  [ $# = 2 ] || { sp_error 'usage: task-start PLAN_FILE TASK_NUMBER'; return; }
+  native_validate "$@"
+  if [ -n "$record" ]; then
+    native_unpack
+    if [ "$state" = complete ]; then native_reuse; return; fi
+    [ "$saved_plan" = "$plan_hash" ] || { sp_error 'plan changed since start'; return; }
+    git merge-base --is-ancestor "$saved_base" "$head" || { sp_error 'start base is not an ancestor of HEAD'; return; }
+    printf 'status: in_progress\nbrief: %s/task-%s-brief.md\nbase: %s\nworkspace: %s\n' "$dir" "$n" "$saved_base" "$dir"
+    return
+  fi
+  sp_ensure
+  [ -e "$ledger" ] || printf '# SDD ledger — plan: %s\n' "$plan_id" > "$ledger"
+  bash "$sdd/task-brief" "$plan" "$n" >/dev/null
+  checkout=$(native_checkout)
+  printf 'Native\t%s\tstarted\t%s\t%s\t%s\n' "$n" "$head" "$plan_hash" "$checkout" >> "$ledger"
+  printf 'Task %s: in_progress (base=%s checkout=%s)\n' "$n" "$head" "$checkout" >> "$ledger"
+  printf 'status: in_progress\nbrief: %s/task-%s-brief.md\nbase: %s\nworkspace: %s\n' "$dir" "$n" "$head" "$dir"
+}
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then native_start "$@"; fi

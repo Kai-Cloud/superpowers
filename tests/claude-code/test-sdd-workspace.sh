@@ -61,8 +61,8 @@ cleanup() {
 main() {
     echo "=== Test: sdd-workspace ==="
 
-    TEST_ROOT="$(mktemp -d)"
-    trap cleanup EXIT
+    TEST_ROOT="$(mktemp -d "${SP_TEST_ROOT:-${TMPDIR:-/tmp}}/sdd-XXXXXXXX")"
+    if [[ "${SP_KEEP_FIXTURES:-0}" != 1 ]]; then trap cleanup EXIT; fi
 
     # Keep Git's spelling as input to assertions: on Git Bash it differs
     # from shell output. All writes and fixture commits stay outside the repo.

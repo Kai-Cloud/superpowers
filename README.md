@@ -30,9 +30,21 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.3.6
+## Fork 6.4.1 development candidate
 
-This release keeps the bounded navigation, task briefs, ledger, repair loops,
+This development candidate adds canonical workspace ownership, guarded review
+ranges, and bounded Native inline start/done evidence. It preserves the released
+6.3.6 workflow/model/permission and evaluation-budget rules. A bounded Astra Low
+comparison passed Golden v3 and the inline execution case; the recovery case
+required a checker-contract correction and offline acceptance of saved artifacts.
+This is limited evidence, not a universal no-regression or performance claim.
+See the [adoption matrix](docs/6.4.1-adoption.md) for the validation limitations.
+The candidate is available in this repository for continued development;
+`kai-plugins` remains pinned to 6.3.6. No installed plugin is updated by this push.
+
+### Published 6.3.6 background
+
+The published release keeps the bounded navigation, task briefs, ledger, repair loops,
 scoped SDD reviews, and parent-selected execution/model lane from 6.3.5. It adds
 a shared bootstrap core, capability profiles, and a `task-execution` skill for
 work within an already-authorized implementation scope.

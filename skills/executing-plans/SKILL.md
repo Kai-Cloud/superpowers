@@ -32,14 +32,40 @@ implementation workflow.
 
 ### Step 2: Execute Tasks
 
+For an approved file plan with numbered `Task N` headings, use this skill's
+helpers via bash in the authorized checkout:
+
+```bash
+bash scripts/task-start PLAN_FILE N
+# Implement the task; retain the printed BASE.
+bash scripts/task-done PLAN_FILE N BASE -- EXECUTABLE ARG...
+```
+
+These share SDD's owned `.superpowers/sdd/` workspace and `progress.md`, not a
+second controller or ledger. Start prints brief/base/workspace; done validates
+plan/task/ownership/base before running explicit argv, retaining command, exit,
+log path/hash and checkout evidence. Plan text is never shell-evaluated. A silent
+exit 0 is valid; failed verification keeps its unique log and is not completion.
+Use a read-only focused verifier: code changes during verification withhold
+completion. No commit, worktree, review, or model change is required by these
+helpers; dirty and untracked source files are included in checkout evidence.
+
 For each task:
-1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run the focused verification for the affected contract. A named integration
-   boundary, repository rule, or final-delivery requirement may require a full
-   suite; do not repeat it on unchanged code after every task.
-4. Mark as completed with the command and result. Reuse that record when
-   resuming; do not redo completed tasks or verification without new evidence.
+1. Start and read its brief; an unchanged `status: complete` resumes without
+   rerunning implementation or verification just for bookkeeping.
+2. Implement the approved steps, then pass the focused verification command to
+   done. A named integration boundary, repository rule, or final-delivery
+   requirement may require a full suite; do not repeat it after every task.
+3. Mark complete only with successful evidence. A stale proof means stop and
+   reconcile changed scope/evidence, not automatically rerun a completed task.
+   Earlier task evidence remains historical when later tasks change the checkout.
+   Ignored dependencies and external environment changes need separate judgment;
+   checkout hashes do not prove them unchanged. Retain records, do not delete
+   evidence to force a fresh run.
+
+Ordinary conversational inline work without a plan file remains valid: use
+superpowers:task-execution and record focused command/results in the conversation.
+Do not create a plan merely to use these helpers or redirect that work to SDD.
 
 For skill-behavior changes, the coordinator owns the separately approved,
 finite-budget model validation (named cases, call/time/cost limits, and stop

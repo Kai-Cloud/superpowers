@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Usage: task-done PLAN_FILE TASK_NUMBER BASE -- EXECUTABLE [ARG...]
+# Explicit argv only; shell syntax requires an explicitly supplied bash -c.
+set -euo pipefail
+source "$(cd "$(dirname "$0")" && pwd)/task-start"
+[ $# -ge 5 ] && [ "$4" = -- ] || { sp_error 'usage: task-done PLAN_FILE TASK_NUMBER BASE -- EXECUTABLE [ARG...]'; exit 2; }
+requested_base=$(git rev-parse --verify --quiet --end-of-options "${3}^{commit}") || { sp_error 'bad BASE'; exit 2; }
+native_validate "$1" "$2"
+shift 4
+[ -n "$record" ] || { sp_error 'task has no start record'; exit 2; }
+native_unpack
+[ "$requested_base" = "$saved_base" ] && [ "$saved_plan" = "$plan_hash" ] \
+  || { sp_error 'BASE or plan does not match start'; exit 2; }
+git merge-base --is-ancestor "$saved_base" "$head" || { sp_error 'BASE is not an ancestor of HEAD'; exit 2; }
+if [ "$state" = complete ]; then native_reuse; exit; fi
+[[ "$state" = started || "$state" = failed ]] || { sp_error 'invalid Native state'; exit 2; }
+checkout_before=$(native_checkout)
+log=$(mktemp "$dir/task-$n-tests-XXXXXXXX.log")
+printf -v cmd '%q ' "$@"
+printf 'Task %s: verification (cwd=%q base=%s head=%s checkout=%s command=%s log=%q)\n' \
+  "$n" "$PWD" "$saved_base" "$head" "$checkout_before" "$cmd" "$log" >> "$ledger"
+rc=0
+"$@" > "$log" 2>&1 || rc=$?
+checkout=$(native_checkout)
+log_hash=$(git hash-object --no-filters -- "$log")
+# A verifier that changes code cannot attest to the resulting checkout.
+if [ "$rc" = 0 ] && { [ "$checkout_before" != "$checkout" ] || [ "$plan_hash" != "$(git hash-object --no-filters -- "$plan")" ]; }; then
+  printf 'verification changed checkout or plan; completion withheld\n' >&2
+  rc=3
+fi
+state=failed
+[ "$rc" != 0 ] || state=complete
+printf 'Native\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  "$n" "$state" "$saved_base" "$plan_hash" "$checkout" "$(basename "$log")" "$log_hash" >> "$ledger"
+printf 'Task %s: %s (exit=%s base=%s head=%s checkout=%s command=%s log=%q log_hash=%s)\n' \
+  "$n" "$state" "$rc" "$saved_base" "$head" "$checkout" "$cmd" "$log" "$log_hash" >> "$ledger"
+printf 'status: %s\nlog: %s\nledger: %s\nexit: %s\n' "$state" "$log" "$ledger" "$rc"
+exit "$rc"
