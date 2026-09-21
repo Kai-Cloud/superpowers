@@ -60,6 +60,12 @@ independently testable deliverable.
 ## Verification Scope
 
 Each task names the affected contract, focused command, and expected evidence.
+For a critical external dependency, plan early minimum real-boundary validation
+within existing authorization, before dependent infrastructure accumulates.
+Distinguish mock, model process, and actual service/broker evidence; none implies
+another is live-verified. Simulation is valid when it is the explicit phase goal.
+An unavailable or unauthorized boundary stays unverified/blocked, not permission
+to access it or force production scope.
 A full suite needs a named integration boundary, repository rule, or final
 delivery gate. Place that gate where its evidence is needed, not after every
 unrelated step. Reuse current proof for an unchanged tree and claim; rerun when
@@ -84,7 +90,7 @@ checks accurately; a focused pass is not a whole-repository claim.
 
 > **For agentic workers:** Execute only after your human partner selects execution. Use superpowers:executing-plans for explicit inline execution, or superpowers:subagent-driven-development for explicit SDD. Preserve an already-selected mode; tool availability does not select it. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** [One sentence describing what this builds]
+**Goal:** [Current usable slice: entry, user action, observable acceptance, exclusions; reuse the existing brief when available]
 
 **Architecture:** [2-3 sentences about approach]
 

@@ -188,7 +188,7 @@ is the whole process.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
 - Prefer multiple choice questions when possible, but open-ended is fine too
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
+- At project or phase start, describe the current usable slice in a few lines: entry, user action, observable acceptance, and exclusions. Reuse the existing brief rather than create another artifact; keep bounded corrections proportional.
 
 **Exploring approaches:**
 

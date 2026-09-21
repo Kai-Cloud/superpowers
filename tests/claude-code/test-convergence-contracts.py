@@ -20,6 +20,7 @@ FILES = {
     "debugging": "skills/systematic-debugging/SKILL.md",
     "tracing": "skills/systematic-debugging/root-cause-tracing.md",
     "plans": "skills/writing-plans/SKILL.md",
+    "execution": "skills/task-execution/SKILL.md",
     "verification": "skills/verification-before-completion/SKILL.md",
     "finishing": "skills/finishing-a-development-branch/SKILL.md",
     "worktrees": "skills/using-git-worktrees/SKILL.md",
@@ -43,6 +44,33 @@ class ConvergenceContracts(unittest.TestCase):
             re.search(pattern, self.text(name), re.IGNORECASE),
             f"{FILES[name]}: conflicting instruction /{pattern}/",
         )
+
+    def test_phase_slice_reuses_brief_without_quickfix_planning(self):
+        for name in ("design", "plans", "execution"):
+            for term in (r"current usable slice", r"entry", r"user action",
+                         r"observable acceptance", r"exclusions", r"reuse.{0,60}brief"):
+                self.require(name, term)
+        self.require("execution", r"quick fixes.{0,100}full product planning")
+
+    def test_external_boundary_is_early_authorized_and_truthfully_labeled(self):
+        for name in ("plans", "execution"):
+            for term in (r"critical external dependenc", r"early.{0,100}minimum.{0,60}real.boundary",
+                         r"authoriz", r"mock", r"model process", r"broker",
+                         r"simulation.{0,100}phase goal", r"live.verified"):
+                self.require(name, term)
+        self.require("execution", r"no unauthorized network.{0,30}trading")
+
+    def test_repeated_infrastructure_or_fix_loop_reassesses_outcome_conditionally(self):
+        for term in (r"if.{0,100}repeated infrastructure.only", r"same.fix loop",
+                     r"next dependency.{0,100}user outcome", r"not a mechanical stop",
+                     r"not.{0,30}autonomous scope change", r"existing authorization",
+                     r"preserve.{0,80}tests.{0,80}safety"):
+            self.require("execution", term)
+
+    def test_delivery_status_uses_existing_summary_not_a_new_artifact(self):
+        for term in (r"existing final summary", r"usable", r"simulated", r"unverified",
+                     r"blocked", r"no separate.{0,30}(?:artifact|JSON)"):
+            self.require("execution", term)
 
     def test_router_removes_hypothetical_and_every_response_triggers(self):
         self.reject("router", r"even a 1% chance.{0,100}MUST invoke")

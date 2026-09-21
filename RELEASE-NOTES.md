@@ -1,5 +1,29 @@
 # Superpowers Release Notes
 
+## v6.4.2 — fork development candidate (2026-09-20)
+
+- Reuse the design/plan/goal brief for a few-line current usable slice: entry,
+  user action, observable acceptance and exclusions, without full planning for
+  conversational quick fixes.
+- Validate critical external boundaries early when authorized; distinguish mock,
+  model process and actual service/broker evidence. Explicit simulation phases
+  remain valid; no automatic production, network or trading authorization.
+- Reassess repeated infrastructure-only increments or same-fix loops against
+  the user outcome, without mechanical stops, scope changes or renewed approval
+  inside existing authorization. Preserve tests and safety controls.
+- Report usable/simulated/unverified/blocked capabilities in the existing final
+  summary, not a new artifact. Workspace/Native helpers and bootstrap are unchanged.
+- Nine registered metadata fields identify 6.4.2; no marketplace rollout.
+
+This is one explicitly requested bounded hypothesis, not a repair of a demonstrated
+6.4.1 quality failure. Focused static contracts do not prove consuming-agent
+behavior. Bounded Astra Low validation and three repeated four-arm Golden v4
+rounds are complete, with candidate functional gates passing and efficiency
+rankings varying. The candidate tag preserves this development checkpoint; no
+stable superiority or universal quality/efficiency benefit is claimed. Runtime
+sources are unchanged from the evaluated snapshot. See
+[adoption and limits](docs/6.4.2-adoption.md).
+
 ## v6.4.1 — fork development candidate (2026-09-20)
 
 - Canonical plan ownership isolates basename collisions; only matching existing

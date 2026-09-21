@@ -30,17 +30,19 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.4.1 development candidate
+## Fork 6.4.2 development candidate
 
-This development candidate adds canonical workspace ownership, guarded review
-ranges, and bounded Native inline start/done evidence. It preserves the released
-6.3.6 workflow/model/permission and evaluation-budget rules. A bounded Astra Low
-comparison passed Golden v3 and the inline execution case; the recovery case
-required a checker-contract correction and offline acceptance of saved artifacts.
-This is limited evidence, not a universal no-regression or performance claim.
-See the [adoption matrix](docs/6.4.1-adoption.md) for the validation limitations.
-The candidate is available in this repository for continued development;
-`kai-plugins` remains pinned to 6.3.6. No installed plugin is updated by this push.
+This user-requested candidate tests a bounded product-outcome convergence
+hypothesis: a current usable slice, early authorized dependency validation,
+conditional reassessment of infrastructure/fix loops, and truthful capability
+status in the existing final summary. Only three on-demand skills change;
+6.4.1 workspace ownership and Native helpers remain unchanged.
+Bounded Astra Low evaluation and three repeated four-arm Golden v4 rounds are
+complete. The candidate passed its observed functional gates; efficiency rankings
+varied across rounds. This is a development checkpoint, not proof of stable
+superiority, a demonstrated 6.4.1 quality failure, or a universal benefit.
+See the [adoption matrix](docs/6.4.2-adoption.md) for scope and limitations.
+No marketplace promotion or installed-plugin update is part of this candidate.
 
 ### Published 6.3.6 background
 
