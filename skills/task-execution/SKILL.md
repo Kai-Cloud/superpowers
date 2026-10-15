@@ -1,12 +1,18 @@
 ---
 name: task-execution
-description: Use when beginning an actual implementation task within an authorized scope, including an already-approved plan or a bounded code change.
+description: Use when authorized implementation has unresolved execution boundaries or untested behavior, or when the selected parent workflow requires task-execution.
 ---
 
 # Task Execution
 
-Use at the implementation boundary, not for every question, explanation, or
-read-only investigation. Keep parent workflow selection unchanged; preserve an
+Use when implementation needs the discipline below, not for every question,
+edit, explanation, or read-only investigation. When the cause, target, and
+correction are established by sufficient evidence, use minimal authorized action
+and focused verification. If misinvoked, exit or narrow immediately; when
+explicitly requested or required by the parent workflow, preserve those steps
+and reuse satisfied proof rather than repeat ceremony.
+
+Keep parent workflow selection unchanged; preserve an
 explicit inline or subagent-driven-development choice. This skill supplies a
 local execution discipline, not a new approval or planning chain. An
 already-approved task does not need approval again within the same scope.

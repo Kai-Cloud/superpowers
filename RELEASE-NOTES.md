@@ -1,5 +1,30 @@
 # Superpowers Release Notes
 
+## v6.4.3 — development candidate (2026-10-15), not marketplace published
+
+- Route from sufficient task evidence, not labels such as "bug" or
+  "implementation". Established cause, target, and correction permit minimal
+  authorized action and focused verification without a mandatory skill.
+- Scope debugging, brainstorming, task-execution and TDD to the unresolved work;
+  reuse satisfied evidence and approval. Allow immediate exit/narrowing after
+  misinvocation, without extra reflection reports or a new skill.
+- Preserve actual design/debugging/untested-behavior discipline, explicitly
+  requested skills, required parent workflows, security and authorization.
+- Inspect compact/standard/complex profiles without changing their depth-only
+  contracts. Synchronize the nine registered local version fields to 6.4.3.
+
+Focused offline contract checks expose the former unconditional bug routing and
+phase requirements. Subsequent bounded PB evaluation on Astra low completed seven
+Golden v4 cases and one known-configuration case across control, 6.4.2 and 6.4.3:
+24/24 strict passes, without behavior reruns. All three arms used a direct path
+in the targeted case, so the intended routing improvement is **NOT_DEMONSTRATED**.
+These single observations do not establish general regression safety or stable
+superiority. Exporter repairs introduced distinct PB source revisions; comparisons
+retain provenance and original export failures, with corrected exports separate.
+Raw evidence remains external to the repositories. No marketplace publication,
+device installation or deployment is included. The actual 6.4.2 published history
+and evaluation limits below remain unchanged.
+
 ## v6.4.2 — kai-plugins publication (2026-09-22)
 
 Published to the private `kai-plugins` marketplace by commit

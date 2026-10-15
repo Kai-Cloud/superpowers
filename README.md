@@ -30,6 +30,27 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
+## Fork 6.4.3 — development candidate, not marketplace published
+
+This user-approved candidate selects skills from task evidence rather than
+keywords. An evidenced known cause, target, and correction permits minimal
+authorized action plus focused verification without mandatory skill ceremony.
+Unresolved design, failure causes, and untested code behavior retain appropriate
+discipline. Misinvoked skills can exit or narrow immediately; explicit requests,
+parent workflows, security and authorization remain binding. No new skill or
+reflection report is introduced; capability profiles remain unchanged.
+
+Focused offline instruction-contract RED/GREEN checks passed. Subsequent bounded
+PB evaluation on Astra low completed eight cases across control, 6.4.2 and 6.4.3:
+24/24 strict passes, with no behavior reruns. The targeted known-configuration
+case took the direct path in all three arms, so routing improvement remains
+**NOT_DEMONSTRATED**. Single observations and exporter repairs across PB source
+revisions limit efficiency comparisons; raw evidence stays external in PB staging.
+No rollout is included. The nine registered metadata fields identify the 6.4.3
+candidate, including its development marketplace manifest; they do not promote
+the external marketplace or devices.
+The actual 6.4.2 publication and its evidence remain recorded below.
+
 ## Fork 6.4.2 — published to kai-plugins
 
 Published to the private `kai-plugins` marketplace on 2026-09-22 by marketplace

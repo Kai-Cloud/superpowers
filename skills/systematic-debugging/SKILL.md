@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: Use when a bug, test failure, or unexpected behavior has an unresolved cause or an unverified correction, before proposing speculative fixes
 ---
 
 # Systematic Debugging
@@ -17,11 +17,16 @@ description: Use when encountering any bug, test failure, or unexpected behavior
 NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 ```
 
-If you haven't completed Phase 1, you cannot propose fixes.
+Establish root cause before proposing fixes; existing evidence can satisfy this
+requirement without repeating an investigation. When the cause, target, and
+correction are supported by sufficient evidence, use minimal authorized action
+and focused verification. Confidence alone does not establish a cause or prove
+code behavior. If misinvoked, exit or narrow immediately; explicit requests and
+required parent-workflow steps still apply.
 
 ## When to Use
 
-Use for ANY technical issue:
+Use when cause or correction remains unresolved for:
 - Test failures
 - Bugs in production
 - Unexpected behavior
@@ -58,12 +63,14 @@ diagnosis alone does not authorize remediation or a project workflow.
 
 ## The Four Phases
 
-For an authorized fix, complete each phase before proceeding to the next.
+For unresolved debugging work, use the phases to close the missing evidence.
+Reuse already-satisfied phases; do not replay them as ceremony. Once cause and
+correction are established, proceed to the remaining authorized action and proof.
 For an investigation-only request, stop at the requested evidence report.
 
 ### Phase 1: Root Cause Investigation
 
-**BEFORE attempting ANY fix:**
+**When root-cause evidence is missing:**
 
 1. **Read Error Messages Carefully**
    - Don't skip past errors or warnings
@@ -182,13 +189,13 @@ For an investigation-only request, stop at the requested evidence report.
 
 **Fix the root cause, not the symptom:**
 
-1. **Create Failing Test Case**
-   - Simplest possible reproduction
-   - Automated test if possible
-   - One-off test script if no framework
-   - MUST have before fixing
-   - For production behavior changes, use `superpowers:test-driven-development`
-   - A known local test/fixture/harness correction needs its focused red/green proof, not a new production-design workflow
+1. **Select the Missing Proof**
+   - For new or unresolved production behavior, establish a failing regression
+     before editing; use `superpowers:test-driven-development` when needed
+   - Reuse an existing valid reproduction or failing contract rather than restart
+   - For an evidenced known correction, use focused verification; a local
+     test/fixture/harness correction does not require a production-design workflow
+   - Behavior-shaping skill edits retain `superpowers:writing-skills` proof rules
 
 2. **Implement Single Fix**
    - Address the root cause identified

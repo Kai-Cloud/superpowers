@@ -16,11 +16,18 @@ design, and get your human partner's approval.
 An audit, read-only investigation, explanation, or known local correction
 confined to tests, fixtures, assertions, harnesses, metadata, or non-behavioral
 documentation is not design work. End it with an evidence report or focused
-proof, not a spike/bounded/architectural project. If evidence shows the change
-alters production behavior, a public contract, routing, or authority, name that
-boundary and seek the needed design approval. If its effect is still unclear,
-record `Unknown` and the next cheapest verification rather than assuming a
-heavier path. Honor an explicit task scope and already-approved design.
+proof, not a spike/bounded/architectural project. When the cause, target, and
+correction are established by sufficient evidence and no design decision remains,
+use minimal authorized action and focused verification, including for a known
+code correction. If misinvoked, exit or narrow immediately; explicit requests and
+required parent-workflow steps remain binding. The paths and approval gate below
+apply to unresolved design work, not every edit.
+
+If evidence exposes an unresolved production behavior, public contract, routing,
+or authority design decision, name that boundary and seek only the needed new
+approval. If its effect is still unclear, record `Unknown` and the next cheapest
+verification rather than assuming a heavier path. Honor an explicit task scope
+and already-approved design.
 
 <HARD-GATE>
 For behavior-changing design work, do NOT invoke an implementation skill, write
@@ -72,12 +79,11 @@ its next cheapest verification; it is not a one-way process ratchet.
 
 ## Anti-Pattern: "Too Simple To Need Approval"
 
-Every path ends with your human partner approving your intent before
-implementation. A todo list, a single-function utility, a config
-change — the design may be two sentences in chat, but you MUST present
-it and get approval. "Simple" tasks are where unexamined assumptions
-cause the most wasted work. What scales with simplicity is the
-artifact, never the approval.
+For unresolved design work, every path ends with your human partner approving
+your intent before implementation. Small size alone does not settle requirements
+or authorize a design. Present the needed design and obtain approval; reuse
+approval already given for the same scope. What scales with simplicity is the
+artifact, never the authority boundary.
 
 ## Red Flags
 

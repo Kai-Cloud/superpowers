@@ -5,6 +5,10 @@ Run directly with Python; no project runner, dependencies, subprocesses, or writ
 These checks cover published instructions, not actual model behavior. Selected
 contracts reuse 5c48a53/c12edf8/dcf01b9, not their complete files or workflows.
 Execution-worker/model-policy contracts are owned by separate tests.
+
+The 6.4.3 additions name contradictory routing/phase contracts, not agent
+compliance. Focused RED/GREEN stops at these checks plus bounded offline
+regression; no model evaluation is authorized or implied.
 """
 
 from pathlib import Path
@@ -44,6 +48,52 @@ class ConvergenceContracts(unittest.TestCase):
             re.search(pattern, self.text(name), re.IGNORECASE),
             f"{FILES[name]}: conflicting instruction /{pattern}/",
         )
+
+    def test_routing_uses_evidence_not_bug_keywords(self):
+        self.reject("router", r"bugs\s*→\s*systematic-debugging")
+        self.require("router", r"evidence.{0,100}not.{0,40}keyword")
+        self.require("router", r"unresolved.{0,70}(?:cause|failure).{0,80}systematic-debugging")
+        self.require("router", r"unresolved design.{0,50}brainstorming")
+        self.require("router", r"(?:untested|unresolved).{0,60}(?:code|production).{0,100}test-driven-development")
+
+    def test_known_correction_has_no_mandatory_skill_or_ceremony(self):
+        self.require("router", r"cause, target, and correction.{0,100}(?:evidence|established)")
+        self.require("router", r"minimal authorized action.{0,80}focused verification")
+        self.require("router", r"no skill.{0,30}required")
+        self.reject("router", r"At an actual implementation boundary, use")
+        self.require("router", r"confidence.{0,80}not.{0,40}evidence")
+        self.require("router", r"explicit.{0,50}(?:requested|required).{0,80}(?:skill|workflow)")
+
+    def test_misinvocation_can_exit_without_new_report_or_workflow(self):
+        self.require("router", r"(?:misinvoked|mis.invocation).{0,100}(?:exit|narrow).{0,50}immediately")
+        self.require("router", r"no.{0,40}(?:reflection|report).{0,60}(?:required|artifact)")
+        for name in ("design", "debugging", "execution"):
+            self.require(name, r"(?:exit|narrow).{0,60}(?:immediately|without.{0,30}(?:phase|ceremony))")
+
+    def test_debugging_does_not_repeat_established_cause_phases(self):
+        self.reject("debugging", r"description: Use when encountering any bug")
+        self.reject("debugging", r"Use for ANY technical issue")
+        self.reject("debugging", r"If you haven't completed Phase 1, you cannot propose fixes")
+        self.reject("debugging", r"For an authorized fix, complete each phase before proceeding")
+        self.require("debugging", r"existing evidence.{0,100}(?:satisf|reuse)")
+        self.require("debugging", r"cause, target, and correction.{0,130}focused verification")
+
+    def test_design_does_not_require_new_approval_for_resolved_correction(self):
+        self.require("design", r"cause, target, and correction.{0,140}evidence")
+        self.reject("design", r"a config change.{0,100}MUST present")
+        self.require("design", r"unresolved design.{0,100}(?:paths|gate)|(?:paths|gate).{0,100}apply to unresolved design")
+
+    def test_execution_and_tdd_scope_known_corrections_before_phase_rules(self):
+        self.require("execution", r"description:.{0,200}(?:unresolved|untested)")
+        for name, path in (("execution", FILES["execution"]),
+                           ("tdd", "skills/test-driven-development/SKILL.md")):
+            text = re.sub(r"\s+", " ", (ROOT / path).read_text(encoding="utf-8"))
+            self.assertRegex(text, r"cause, target, and correction.{0,160}evidence")
+            self.assertRegex(text, r"focused verification")
+            self.assertRegex(text, r"(?:explicitly requested|required by).{0,100}(?:workflow|skill|TDD)")
+        tdd = (ROOT / "skills/test-driven-development/SKILL.md").read_text(encoding="utf-8")
+        self.assertNotIn("Never fix bugs without a test.", tdd)
+        self.assertRegex(tdd, r"(?s)unresolved.*behavior.*failing test")
 
     def test_phase_slice_reuses_brief_without_quickfix_planning(self):
         for name in ("design", "plans", "execution"):

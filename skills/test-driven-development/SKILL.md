@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing a production feature, bugfix, refactor, interface, or behavior change, before writing production code
+description: Use when implementing new or unresolved production behavior without a failing proof, or when TDD is explicitly requested or required by the selected workflow
 ---
 
 # Test-Driven Development (TDD)
@@ -15,7 +15,20 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 ## When to Use
 
-**For production changes:**
+First assess the evidence. When the cause, target, and correction are established
+by sufficient evidence and no untested behavior remains to specify, use minimal
+authorized action and focused verification, not a mandatory new TDD cycle.
+Reuse valid existing failing proof. Confidence, a known file, or a proposed fix
+alone does not establish behavior; new or unresolved production behavior needs a
+failing test before implementation. Behavior-shaping skill edits retain the
+`superpowers:writing-skills` proof rules.
+
+If misinvoked, exit or narrow immediately. When explicitly requested or required
+by the selected workflow, TDD remains binding. The cycle, reset rules, and
+checklist below govern production work needing that failing proof, not known
+corrections with sufficient evidence.
+
+**For new or unresolved production behavior:**
 - New features
 - Bug fixes
 - Refactoring
@@ -320,9 +333,9 @@ into a production rewrite.
 
 ## Debugging Integration
 
-Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
-
-Never fix bugs without a test.
+Bug with new or unresolved production behavior? Establish its failing regression
+and follow the TDD cycle. A known correction with sufficient evidence uses focused
+verification; the word "bug" alone does not require restarting TDD.
 
 ## Final Rule
 

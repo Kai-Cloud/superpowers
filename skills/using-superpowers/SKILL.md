@@ -9,46 +9,49 @@ If you were dispatched as a subagent to execute a specific task, ignore this ski
 
 ## Shared Core
 
-**Invoke requested skills and follow them.** Otherwise choose the smallest
-materially relevant skill before the action it governs; no mandatory skill chain.
+**Invoke requested skills and follow them.** Otherwise select from evidence,
+not keyword matches: use the smallest materially relevant process, including none.
 
-1. **Goal:** Name the requested behavior, symptom, deliverable, task boundary,
-   and finish condition.
-2. **Target context:** Use known paths and direct proof. For an unknown entry,
-   owner, or contract, use `superpowers:codebase-navigation`. Respect the context
-   budget: retain a short evidence summary, avoid repeated full reads, and fetch
-   only missing context that changes the next decision.
-3. **Implementation:** Select only the process needed now: unresolved design
-   choices → brainstorming; bugs → systematic-debugging; approved work → the
-   explicitly selected execution mode. At an actual implementation boundary,
-   use `superpowers:task-execution` within that mode, not to replace it.
-   Existing approval remains valid within its scope; do not request it again.
-4. **Target tests:** Verify the named claim with focused evidence. Expand only
-   when evidence identifies a named boundary; evidence can also narrow scope
-   and downgrade process. For missing evidence, state `Unknown` and the next
-   cheapest verification; stop or hand off if unavailable.
-5. **Truthful final:** Report changes, actual test evidence, and remaining limits.
-   Stop when the finish condition is met; no further tools after done.
+When the cause, target, and correction are established by sufficient evidence
+(current contract, reproduction, diagnostic, or verified diff), take the minimal
+authorized action and focused verification; no skill is required. Labels like
+"bug" or "implementation" do not mandate ceremony. Confidence is not evidence.
+Explicitly requested skills and required parent-workflow steps remain binding.
 
-Announce the selected skill and purpose. Process skills govern implementation
-skills; hypothetical relevance does not justify chaining them. Real feature
-design still needs approval, not a second approval for an unchanged approved task.
+1. **Goal:** Name the requested behavior, task boundary, and finish condition.
+2. **Target context:** Use known paths and proof. For an unknown entry, owner,
+   or contract, use `superpowers:codebase-navigation`. Respect the context budget:
+   avoid repeated full reads; fetch only evidence that changes the next decision.
+3. **Implementation:** Unresolved design choices → brainstorming; unresolved
+   failure cause → systematic-debugging; new or unresolved code behavior lacking
+   a failing proof → test-driven-development. Use `superpowers:task-execution`
+   when its discipline is needed or the parent workflow requires it. Preserve
+   the explicitly selected execution mode and existing approval within scope.
+4. **Target tests:** Verify the named claim. Expand only for an evidenced boundary;
+   evidence can also narrow process. State `Unknown` and the next cheapest
+   verification for missing evidence; stop or hand off if unavailable.
+5. **Truthful final:** Report changes, actual tests, and limits. Stop when the
+   finish condition is met; no further tools after done.
+
+Announce a selected skill and purpose. If misinvoked, exit or narrow immediately
+when its trigger is absent; do not finish irrelevant phases. Preserve explicit
+requests and required parent workflow; no extra reflection report is required.
+Real feature design needs approval, not renewed approval for unchanged work.
 
 ## Non-Escalating Work
 
 An audit, read-only investigation, explanation, or local correction to tests,
 fixtures, assertions, harnesses, metadata, or non-behavioral documentation ends
-with an evidence report or focused proof. It is not an implementation-plan workflow.
-New production, public contract, routing, or authority scope requires the needed
-approval before expansion. Uncertainty is not authorization.
+with an evidence report or focused proof, not an implementation-plan workflow.
+New scope needs authorization; uncertainty grants none.
 
-A plan, tools, or manifest does not authorize branches, worktrees, dependencies,
-broad/model tests, review, or deployment. A capability profile adjusts working
-depth only, never tool permissions or parent workflow selection.
+Plans, tools, and manifests do not authorize branches, worktrees, dependencies,
+broad/model tests, review, or deployment. Profiles adjust depth, not permissions
+or parent workflow.
 
 ## Platform Adaptation
 
-Read only the applicable harness reference:
+Read only the applicable reference:
 - Codex: `references/codex-tools.md`
 - Pi: `references/pi-tools.md`
 - Antigravity: `references/antigravity-tools.md`
@@ -57,6 +60,5 @@ Read only the applicable harness reference:
 ## User Instructions
 
 User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, direct requests) take precedence
-over skills, which override default behavior. A clear task boundary or proof
-method can narrow or skip a workflow. Skills never override safety,
-authorization, or deployment constraints; invocation grants no unrelated scope.
+over skills. A task boundary or proof method can narrow or skip a workflow.
+Skills never override safety, authorization, or deployment constraints.
