@@ -1,6 +1,16 @@
 # Superpowers Release Notes
 
-## v6.4.2 — fork development candidate (2026-09-20)
+## v6.4.2 — kai-plugins publication (2026-09-22)
+
+Published to the private `kai-plugins` marketplace by commit
+`5b476b3b2c9b3231839387fcdfda2a24bcd07110`, pinning source
+`a4ff2413ff7b6893f3c017cd6ecab9df57302932`. The external
+[marketplace manifest](https://github.com/Kai-Cloud/kai-claude-marketplace/blob/main/.claude-plugin/marketplace.json)
+is authoritative for the current release. Device installations must be checked
+separately. This subsequent publication does not change the evaluation results
+or limitations below.
+
+### Original development candidate (2026-09-20)
 
 - Reuse the design/plan/goal brief for a few-line current usable slice: entry,
   user action, observable acceptance and exclusions, without full planning for
@@ -13,7 +23,8 @@
   inside existing authorization. Preserve tests and safety controls.
 - Report usable/simulated/unverified/blocked capabilities in the existing final
   summary, not a new artifact. Workspace/Native helpers and bootstrap are unchanged.
-- Nine registered metadata fields identify 6.4.2; no marketplace rollout.
+- Nine registered metadata fields identify 6.4.2; the original candidate work
+  did not include marketplace rollout. Subsequent publication is recorded above.
 
 This is one explicitly requested bounded hypothesis, not a repair of a demonstrated
 6.4.1 quality failure. Focused static contracts do not prove consuming-agent
@@ -34,8 +45,9 @@ sources are unchanged from the evaluated snapshot. See
   task-start records base/brief; task-done validates before explicit argv execution,
   preserves unique failure logs, accepts silent success and uncommitted work, and
   refuses stale completion reuse. No forced commit, review, worktree or model switch.
-- Nine registry version fields identify this development candidate. The external
-  kai-plugins marketplace continues to select the stable 6.3.6 commit.
+- Nine registry version fields identified this development candidate. At this
+  checkpoint, the external kai-plugins marketplace selected the stable 6.3.6
+  commit; the subsequent 6.4.2 publication is recorded above.
 
 Focused offline fixtures and a bounded Astra Low comparison are complete. Golden
 v3 and the inline case passed; the recovery case's original checker rejected an

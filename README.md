@@ -30,23 +30,31 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.4.2 development candidate
+## Fork 6.4.2 — published to kai-plugins
 
-This user-requested candidate tests a bounded product-outcome convergence
+Published to the private `kai-plugins` marketplace on 2026-09-22 by marketplace
+commit `5b476b3b2c9b3231839387fcdfda2a24bcd07110`, pinning source
+`a4ff2413ff7b6893f3c017cd6ecab9df57302932`. The external
+[marketplace manifest](https://github.com/Kai-Cloud/kai-claude-marketplace/blob/main/.claude-plugin/marketplace.json)
+is the authority for the current release; per-device installation is a separate
+state and must be checked on that device.
+
+The user-requested candidate evaluated before publication tests a bounded product-outcome convergence
 hypothesis: a current usable slice, early authorized dependency validation,
 conditional reassessment of infrastructure/fix loops, and truthful capability
 status in the existing final summary. Only three on-demand skills change;
 6.4.1 workspace ownership and Native helpers remain unchanged.
 Bounded Astra Low evaluation and three repeated four-arm Golden v4 rounds are
 complete. The candidate passed its observed functional gates; efficiency rankings
-varied across rounds. This is a development checkpoint, not proof of stable
-superiority, a demonstrated 6.4.1 quality failure, or a universal benefit.
-See the [adoption matrix](docs/6.4.2-adoption.md) for scope and limitations.
-No marketplace promotion or installed-plugin update is part of this candidate.
+varied across rounds. Publication does not turn this development evidence into
+proof of stable superiority, a demonstrated 6.4.1 quality failure, or a universal
+benefit. See the [adoption matrix](docs/6.4.2-adoption.md) for scope and limitations.
+The candidate evaluation did not include rollout; the subsequent marketplace
+publication is recorded above and does not establish installation on every device.
 
-### Published 6.3.6 background
+### Historical 6.3.6 release background
 
-The published release keeps the bounded navigation, task briefs, ledger, repair loops,
+The 6.3.6 release kept the bounded navigation, task briefs, ledger, repair loops,
 scoped SDD reviews, and parent-selected execution/model lane from 6.3.5. It adds
 a shared bootstrap core, capability profiles, and a `task-execution` skill for
 work within an already-authorized implementation scope.
