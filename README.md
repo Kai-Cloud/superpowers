@@ -30,6 +30,26 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
+## Fork 6.4.4 — unaccepted development candidate
+
+This bounded candidate adds relevant excerpt reads, a safe current baseline when
+an unverified diagnosis motivates repair, and same-round batching of independent
+known relevant reads where supported. Valid existing evidence and the 6.4.3
+known-correction direct path remain usable. Read batching does not authorize
+parallel agents, mutations, or broader scope; production safeguards remain binding.
+
+Nine registered local version fields identify 6.4.4. The user authorized pushing
+this candidate, **not accepting, marketplace publishing or installing it**;
+6.4.3 remains the published release. The completed bounded PB comparison recorded
+30/30 functional passes across control, 6.4.3 and 6.4.4 (ten cases, one sample per
+arm). All three intended improvements—bounded excerpt reads, current-baseline
+checking of a stale diagnosis, and independent-read batching—remain
+**NOT_DEMONSTRATED**. Aggregate 6.4.4 versus 6.4.3 was +0.78% wall time,
++2.44% tokens and +0.63% cost; single-sample observations do not establish stable
+superiority or general regression safety. Raw evidence remains external. Focused
+offline contracts are separate from behavioral proof; no additional live evaluation
+is part of this push. Capability profiles are unchanged.
+
 ## Fork 6.4.3 — kai-plugins release (2026-10-15)
 
 This user-approved candidate selects skills from task evidence rather than

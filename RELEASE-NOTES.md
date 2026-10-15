@@ -1,5 +1,32 @@
 # Superpowers Release Notes
 
+## v6.4.4 — unaccepted development candidate
+
+- Bound context to relevant excerpts and evidenced dependencies, not repository
+  size or speculative sweeps.
+- Separate the user's goal from a suggested diagnosis. An unverified causal
+  premise needs a minimum safe current baseline or reproduction before repair;
+  reuse valid evidence rather than repeat ceremony. Preserve the 6.4.3 direct
+  known-correction path, current authorization and production safeguards.
+- Batch independent known relevant reads in the same tool round where supported;
+  serialize actual information dependencies. Focus does not mean serial tools,
+  and read batching does not authorize agents or mutations.
+- Change only the four direct skills, focused instruction contracts, release
+  documentation and nine registered local version fields. Profiles are unchanged;
+  no new skill, report or planning machinery is introduced.
+
+Focused offline RED/GREEN checks cover instruction contracts, not agent behavior.
+The completed bounded PB comparison recorded 30/30 functional passes across control,
+6.4.3 and 6.4.4: ten cases with one sample per arm. Bounded excerpt reads,
+current-baseline checking of a stale diagnosis, and independent-read batching are
+all **NOT_DEMONSTRATED** as improvements. Aggregate 6.4.4 versus 6.4.3 was
++0.78% wall time, +2.44% tokens and +0.63% cost. These single-sample results do not
+establish stable superiority or general regression safety; raw evidence stays
+external. The user authorized a source push only: this candidate remains
+**unaccepted, not marketplace-published and not installed**. No additional model
+calls are part of this push. **6.4.3 remains the published release**; the external
+marketplace pin and device installations are unchanged by this work.
+
 ## v6.4.3 — kai-plugins release (2026-10-15)
 
 - Route from sufficient task evidence, not labels such as "bug" or

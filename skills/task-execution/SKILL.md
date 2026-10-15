@@ -20,11 +20,17 @@ already-approved task does not need approval again within the same scope.
 1. **Goal:** Name the deliverable, acceptance condition, and authorized boundary.
    At project or phase start, name the current usable slice: entry, user action,
    observable acceptance, exclusions; reuse the existing brief in a few lines.
-   Conversational quick fixes do not require full product planning.
+   Conversational quick fixes do not require full product planning. Separate the
+   user goal from a suggested diagnosis. For an unverified causal premise, obtain
+   a minimum safe current baseline or reproduction before repair; reuse valid
+   existing evidence covering the relevant state instead of repeating ceremony.
 2. **Target context:** Use the known path, contract, and current evidence. Keep
-   one task and its test evidence at a time. Retain a short context-budget
-   summary; avoid repeated full reads. Fetch missing excerpts, not entire files
-   already understood. Expand only for a named dependency revealed by evidence.
+   one task and its test evidence at a time; focus is not serial tool use. Retain
+   a short context-budget summary; avoid repeated full reads. Fetch relevant
+   excerpts; expand only for a named dependency revealed by evidence. Batch
+   independent known relevant reads in the same tool round where supported;
+   serialize only actual information dependencies. Read batching does not authorize
+   parallel agents or mutations.
 3. **Implementation:** Establish the focused failing proof for a new behavior;
    make the smallest meaningful change. Preserve correct baseline behavior.
    Before an edit, compare old and new: if `old == new`, skip the no-op.

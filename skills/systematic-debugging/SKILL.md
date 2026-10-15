@@ -24,6 +24,15 @@ and focused verification. Confidence alone does not establish a cause or prove
 code behavior. If misinvoked, exit or narrow immediately; explicit requests and
 required parent-workflow steps still apply.
 
+Separate the user goal from a suggested diagnosis: the requested outcome is not
+proof of its proposed cause. For an unverified causal premise, obtain a minimum
+safe current baseline or reproduction before repair. Reuse valid existing evidence
+when it covers the relevant state, revision, and environment; repeat only to close
+a missing fact. If reproduction is unsafe or unavailable, use authorized read-only
+evidence or report `Unknown` and the next cheapest verification. Production access
+and mutations still require authorization; a baseline is not permission to run a
+risky operation.
+
 ## When to Use
 
 Use when cause or correction remains unresolved for:
@@ -51,7 +60,10 @@ Use when cause or correction remains unresolved for:
 Name the observed symptom, failing or suspected path, owner/contract, hypothesis,
 and focused proof before widening the investigation. Use known files directly;
 when a large or unfamiliar repository's relevant path is unknown, use
-`superpowers:codebase-navigation` for a bounded task map.
+`superpowers:codebase-navigation` for a bounded task map. Read relevant excerpts;
+batch independent known relevant reads in the same tool round where supported.
+Serialize actual information dependencies, not every step of one investigation.
+This schedules reads, not parallel repairs or automatic delegation.
 
 Follow current evidence across direct callers/consumers and named failure
 boundaries. Never inspect every component merely because the system has multiple

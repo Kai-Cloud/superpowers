@@ -6,8 +6,8 @@ These checks cover published instructions, not actual model behavior. Selected
 contracts reuse 5c48a53/c12edf8/dcf01b9, not their complete files or workflows.
 Execution-worker/model-policy contracts are owned by separate tests.
 
-The 6.4.3 additions name contradictory routing/phase contracts, not agent
-compliance. Focused RED/GREEN stops at these checks plus bounded offline
+The 6.4.3/6.4.4 additions name routing, evidence, and read-scheduling contracts,
+not agent compliance. Focused RED/GREEN stops at these checks plus bounded offline
 regression; no model evaluation is authorized or implied.
 """
 
@@ -48,6 +48,42 @@ class ConvergenceContracts(unittest.TestCase):
             re.search(pattern, self.text(name), re.IGNORECASE),
             f"{FILES[name]}: conflicting instruction /{pattern}/",
         )
+
+    def test_context_reads_are_relevant_excerpts_not_size_driven_sweeps(self):
+        # Missing excerpt guidance permits whole-file reads even with a known path.
+        for name in ("router", "navigation", "execution"):
+            with self.subTest(skill=name):
+                self.require(name, r"(?:relevant|missing|bounded) excerpts")
+        self.require("navigation", r"repository size.{0,100}(?:not|never).{0,80}(?:sweep|read)")
+
+    def test_goal_is_separate_from_suggested_diagnosis(self):
+        # Authorization of an outcome must not validate the proposed cause.
+        for name in ("router", "execution", "debugging"):
+            with self.subTest(skill=name):
+                self.require(name, r"(?:goal|outcome).{0,100}(?:suggested|proposed) (?:diagnosis|cause)")
+                self.require(name, r"(?:unverified|unproven).{0,100}(?:premise|cause|diagnosis).{0,180}(?:before|prior to) (?:repair|fix)")
+
+    def test_unverified_premise_needs_safe_current_baseline_not_repeat_ceremony(self):
+        for name in ("execution", "debugging"):
+            with self.subTest(skill=name):
+                self.require(name, r"minimum safe current (?:baseline|reproduction)")
+                self.require(name, r"reuse valid existing evidence")
+        self.require("debugging", r"(?:unsafe|unavailable).{0,150}Unknown")
+        self.require("debugging", r"production.{0,120}(?:authorization|permission)")
+        self.require("debugging", r"(?:matches|covers).{0,100}(?:current|relevant).{0,80}(?:state|revision|environment)")
+
+    def test_independent_known_reads_share_round_not_serial_focus(self):
+        for name in ("router", "navigation", "execution", "debugging"):
+            with self.subTest(skill=name):
+                self.require(name, r"(?:batch|combine).{0,100}independent.{0,60}(?:known|relevant).{0,60}reads")
+                self.require(name, r"same tool round.{0,60}(?:supported|available)")
+        self.require("navigation", r"serial.{0,100}(?:actual|real) information dependenc")
+        self.require("execution", r"focus.{0,60}(?:not|isn't).{0,30}serial")
+
+    def test_read_batching_does_not_authorize_agents_or_mutations(self):
+        for name in ("router", "navigation", "execution"):
+            with self.subTest(skill=name):
+                self.require(name, r"(?:batching|reads).{0,120}(?:not|no|neither).{0,80}(?:agents|delegation).{0,80}mutations")
 
     def test_routing_uses_evidence_not_bug_keywords(self):
         self.reject("router", r"bugs\s*→\s*systematic-debugging")

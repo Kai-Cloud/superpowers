@@ -59,8 +59,13 @@ Stop:         when direct callers/consumers or the named risk boundary are enume
 
 For example, search `publishPaymentEvent` in its source and tests, excluding
 generated files, to enumerate direct consumers before changing its payload.
-Read each relevant producer/consumer path once; unrelated keyword matches do
-not create more work.
+Read bounded relevant excerpts from each producer/consumer path; expand the slice
+only to resolve a named contract or dependency. Repository size does not justify
+a sweep or full-file reads; unrelated keyword matches do not create more work.
+Batch independent known relevant reads in the same tool round where supported.
+Use serial reads only for actual information dependencies: when one result
+selects or changes the next read. Focus bounds relevance, not tool scheduling;
+read batching does not authorize parallel agents or mutations.
 
 Expand a search only if current evidence identifies a new named boundary that
 can change the decision. State the evidence, expanded scope, and new stop
