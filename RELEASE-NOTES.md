@@ -1,6 +1,6 @@
 # Superpowers Release Notes
 
-## v6.4.3 — development candidate (2026-10-15), not marketplace published
+## v6.4.3 — kai-plugins release (2026-10-15)
 
 - Route from sufficient task evidence, not labels such as "bug" or
   "implementation". Established cause, target, and correction permit minimal
@@ -21,9 +21,12 @@ in the targeted case, so the intended routing improvement is **NOT_DEMONSTRATED*
 These single observations do not establish general regression safety or stable
 superiority. Exporter repairs introduced distinct PB source revisions; comparisons
 retain provenance and original export failures, with corrected exports separate.
-Raw evidence remains external to the repositories. No marketplace publication,
-device installation or deployment is included. The actual 6.4.2 published history
-and evaluation limits below remain unchanged.
+Raw evidence remains external to the repositories. After evaluation, the user
+explicitly authorized marketplace publication and local installation on
+2026-10-15. The external marketplace manifest records the exact release SHA;
+installation and active-session reload require separate verification. This
+publication decision does not demonstrate the intended routing improvement.
+The actual 6.4.2 published history and evaluation limits below remain unchanged.
 
 ## v6.4.2 — kai-plugins publication (2026-09-22)
 

@@ -30,7 +30,7 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.4.3 — development candidate, not marketplace published
+## Fork 6.4.3 — kai-plugins release (2026-10-15)
 
 This user-approved candidate selects skills from task evidence rather than
 keywords. An evidenced known cause, target, and correction permits minimal
@@ -46,10 +46,12 @@ PB evaluation on Astra low completed eight cases across control, 6.4.2 and 6.4.3
 case took the direct path in all three arms, so routing improvement remains
 **NOT_DEMONSTRATED**. Single observations and exporter repairs across PB source
 revisions limit efficiency comparisons; raw evidence stays external in PB staging.
-No rollout is included. The nine registered metadata fields identify the 6.4.3
-candidate, including its development marketplace manifest; they do not promote
-the external marketplace or devices.
-The actual 6.4.2 publication and its evidence remain recorded below.
+The user authorized 6.4.3 marketplace publication on 2026-10-15. The external
+[marketplace manifest](https://github.com/Kai-Cloud/kai-claude-marketplace/blob/main/.claude-plugin/marketplace.json)
+is authoritative for the exact published source SHA; version metadata alone does
+not update that pin or installed devices. Publication does not strengthen the
+behavioral evidence above. Device installation and active-session reload remain
+separate checks. The historical 6.4.2 publication remains recorded below.
 
 ## Fork 6.4.2 — published to kai-plugins
 
