@@ -1,6 +1,38 @@
 # Superpowers Release Notes
 
-## v6.4.4 — unaccepted development candidate
+## v6.4.4 — kai-plugins release (2026-10-17)
+
+The user explicitly authorized publishing original full 6.4.4 on 2026-10-17,
+accepting its modest observed benefit over 6.4.3. Runtime is unchanged from
+`c68e092696acc4139b8b088a148088079507c993`; the interrupted batch-only F1 adoption
+was preserved externally and removed from the release working tree. Neither F1
+nor F2 is published. F2 is deferred to possible 6.4.5 optimization, not implemented
+as part of this publication.
+
+Subsequent functional confirmation: **6.4.3 30/30; 6.4.4 30/30**. Sums of per-case
+medians: 6.4.4 **977.311 seconds / 4,246,597 tokens**, versus 6.4.3 **1,019.635
+seconds / 4,582,970 tokens**. The descriptive improvements are approximately
+**4.15% time and 7.34% tokens**. The original preregistered **10% goal was not met**.
+Individual mechanisms remain **NOT_DEMONSTRATED**; no universal benefit, stable
+superiority or general regression safety is claimed. Explicit user publication
+approval is a new decision, not a falsified historical gate result.
+
+The evaluated external `sp644-common-source-prep-20261015/plugins/SP644` snapshot
+has content digest
+`e863a442dcdc9919b2cbfe2caf360563bcf7c48dad64156cb902e13167c99875`.
+All 215 remaining snapshot files match the restored checkout byte-for-byte;
+README and release notes differ only in publication/evidence documentation, and
+`AGENTS.md` differs by symlink materialization (Git link to `CLAUDE.md`, expanded
+in the frozen snapshot). No line-ending normalization was needed for those 215
+matches. This is runtime equivalence, not a claim that the entire release tree
+has the frozen snapshot digest. No skill behavior is changed for publication.
+
+The external marketplace manifest records the exact release SHA. Nine registered
+version fields remain 6.4.4. Focused offline checks are separate from agent behavior;
+no new live evaluation is run. Raw reports remain external. Local installation,
+caches and settings are unchanged; locally installed 6.4.3 is not upgraded here.
+
+### Original candidate scope and historical evaluation (2026-10-15)
 
 - Bound context to relevant excerpts and evidenced dependencies, not repository
   size or speculative sweeps.
@@ -22,10 +54,11 @@ current-baseline checking of a stale diagnosis, and independent-read batching ar
 all **NOT_DEMONSTRATED** as improvements. Aggregate 6.4.4 versus 6.4.3 was
 +0.78% wall time, +2.44% tokens and +0.63% cost. These single-sample results do not
 establish stable superiority or general regression safety; raw evidence stays
-external. The user authorized a source push only: this candidate remains
-**unaccepted, not marketplace-published and not installed**. No additional model
-calls are part of this push. **6.4.3 remains the published release**; the external
-marketplace pin and device installations are unchanged by this work.
+external. At that checkpoint the user authorized a source push only: the candidate
+was **unaccepted, not marketplace-published and not installed**. No additional
+model calls were part of that push. **6.4.3 was then the published release**;
+the external marketplace pin and device installations were unchanged. The later
+publication decision above does not rewrite this historical outcome.
 
 ## v6.4.3 — kai-plugins release (2026-10-15)
 

@@ -30,25 +30,33 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
-## Fork 6.4.4 — unaccepted development candidate
+## Fork 6.4.4 — kai-plugins release (2026-10-17)
 
-This bounded candidate adds relevant excerpt reads, a safe current baseline when
-an unverified diagnosis motivates repair, and same-round batching of independent
-known relevant reads where supported. Valid existing evidence and the 6.4.3
-known-correction direct path remain usable. Read batching does not authorize
-parallel agents, mutations, or broader scope; production safeguards remain binding.
+This release publishes the original full 6.4.4 runtime from
+`c68e092696acc4139b8b088a148088079507c993`, not the external batch-only F1 variant.
+It retains all three directions: bounded relevant excerpt reads, a safe current
+baseline before repair based on an unverified diagnosis, and same-round batching
+of independent known relevant reads where supported. Valid existing evidence,
+the 6.4.3 known-correction direct path, authorization and production safeguards
+remain binding. Read batching authorizes neither agents nor mutations. Capability
+profiles and all nine registered 6.4.4 version fields are unchanged.
 
-Nine registered local version fields identify 6.4.4. The user authorized pushing
-this candidate, **not accepting, marketplace publishing or installing it**;
-6.4.3 remains the published release. The completed bounded PB comparison recorded
-30/30 functional passes across control, 6.4.3 and 6.4.4 (ten cases, one sample per
-arm). All three intended improvements—bounded excerpt reads, current-baseline
-checking of a stale diagnosis, and independent-read batching—remain
-**NOT_DEMONSTRATED**. Aggregate 6.4.4 versus 6.4.3 was +0.78% wall time,
-+2.44% tokens and +0.63% cost; single-sample observations do not establish stable
-superiority or general regression safety. Raw evidence remains external. Focused
-offline contracts are separate from behavioral proof; no additional live evaluation
-is part of this push. Capability profiles are unchanged.
+Subsequent functional confirmation recorded **30/30 for both 6.4.3 and 6.4.4**.
+Sums of per-case medians were 977.311 seconds / 4,246,597 tokens for 6.4.4 versus
+1,019.635 seconds / 4,582,970 tokens for 6.4.3: approximately **4.15% less time
+and 7.34% fewer tokens**, descriptively. The original preregistered 10% goal was
+**not met**; individual mechanisms remain **NOT_DEMONSTRATED**, and these results
+do not establish universal benefit or stable superiority.
+
+On 2026-10-17 the user explicitly authorized publication of original full 6.4.4,
+accepting the modest observed benefit. This is a new publication decision, not a
+retroactive pass of the historical gate. The [release notes](RELEASE-NOTES.md)
+preserve the initial evaluation and snapshot provenance. The external
+[marketplace manifest](https://github.com/Kai-Cloud/kai-claude-marketplace/blob/main/.claude-plugin/marketplace.json)
+is authoritative for the exact release SHA. Raw reports remain external; this
+publication runs only focused offline checks, not live evaluation. F1 and F2 are
+not published; F2 is deferred to possible 6.4.5 work, with no implementation here.
+Publication does not install or reload plugins: local 6.4.3 remains unchanged.
 
 ## Fork 6.4.3 — kai-plugins release (2026-10-15)
 
