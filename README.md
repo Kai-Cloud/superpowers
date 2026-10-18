@@ -30,6 +30,25 @@ Superpowers is a complete software development methodology for your coding agent
 - [License](#license)
 - [Visual companion telemetry](#visual-companion-telemetry)
 
+## Fork 6.4.5 — paused candidate, NOT accepted or published (2026-10-18)
+
+This source checkpoint preserves published original full 6.4.4 at
+`b8b01287b602776baf0dd453122573132b6a9d7d` plus only the exact
+implementation paragraph from the evaluated external
+`SP644-plus-implementation` snapshot. It is not F1, F2, or the combined
+implementation-and-verification variant. All other runtime wording is unchanged.
+The nine registered version fields identify this candidate as 6.4.5.
+
+The pooled evaluation records 30 formal runs: 27 passes and 3 timeouts,
+with 2 export errors tracked separately. These results do not demonstrate a
+performance gain or establish candidate acceptance. Experiment records remain
+external; no historical results are rewritten or raw evidence imported here.
+
+**6.4.5 development and live testing are paused. This is a source-only checkpoint,
+not a release, installation, tag, or marketplace update.** Published and installed
+6.4.4 remain at `b8b01287b602776baf0dd453122573132b6a9d7d`.
+The 6.4.4 publication history below remains unchanged.
+
 ## Fork 6.4.4 — kai-plugins release (2026-10-17)
 
 This release publishes the original full 6.4.4 runtime from

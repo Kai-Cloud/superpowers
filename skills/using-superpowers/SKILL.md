@@ -30,6 +30,9 @@ not evidence. Explicitly requested skills and required parent workflows remain b
    → systematic-debugging; new or unresolved code behavior lacking a failing proof
    → test-driven-development. Use `superpowers:task-execution` when needed or required
    by the parent workflow. Preserve selected execution mode and existing approval.
+   Once the target and required behavior are established, preserve working modules
+   and legacy surfaces. Add a helper or broaden a module only to satisfy a named
+   contract or observed failure, not for adjacent hardening or refactoring.
 4. **Target tests:** Verify the named claim. Expand only for an evidenced boundary;
    evidence can also narrow process. State `Unknown` and the next cheapest
    verification for missing evidence; stop or hand off if unavailable.
